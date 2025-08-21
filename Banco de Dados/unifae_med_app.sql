@@ -20,6 +20,10 @@ SET time_zone = "+00:00";
 --
 -- Banco de dados: `unifae_med_app`
 --
+CREATE DATABASE IF NOT EXISTS `unifae_med_app`;
+USE `unifae_med_app`;
+
+-- --------------------------------------------------------
 
 -- --------------------------------------------------------
 
