@@ -10,8 +10,8 @@ public class RespostaItemAvaliacao {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_resposta_item")
-    private Integer idRespostaItem;
+    @Column(name = "id_resposta_avaliacao")
+    private Integer idRespostaAvaliacao;
     
     @NotNull(message = "Avaliação preenchida é obrigatória")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,12 +52,12 @@ public class RespostaItemAvaliacao {
     }
     
     // Getters e Setters
-    public Integer getIdRespostaItem() {
-        return idRespostaItem;
+    public Integer getIdRespostaAvaliacao() {
+        return idRespostaAvaliacao;
     }
     
-    public void setIdRespostaItem(Integer idRespostaItem) {
-        this.idRespostaItem = idRespostaItem;
+    public void setIdRespostaAvaliacao(Integer idRespostaAvaliacao) {
+        this.idRespostaAvaliacao = idRespostaAvaliacao;
     }
     
     public AvaliacaoPreenchida getAvaliacaoPreenchida() {
@@ -103,7 +103,7 @@ public class RespostaItemAvaliacao {
     @Override
     public String toString() {
         return "RespostaItemAvaliacao{" +
-                "idRespostaItem=" + idRespostaItem +
+                "idRespostaAvaliacao=" + idRespostaAvaliacao +
                 ", competenciaQuestionario=" + (competenciaQuestionario != null ? competenciaQuestionario.getNomeCompetencia() : null) +
                 ", respostaValorNumerico=" + respostaValorNumerico +
                 ", naoAvaliado=" + naoAvaliado +

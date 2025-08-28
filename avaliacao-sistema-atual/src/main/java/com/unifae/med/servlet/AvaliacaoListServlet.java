@@ -67,8 +67,8 @@ public class AvaliacaoListServlet extends HttpServlet {
             }
             
             // Buscar dados para os filtros
-            List<Usuario> alunos = usuarioDAO.findByTipoUsuario(TipoUsuario.Aluno);
-            List<Usuario> professores = usuarioDAO.findByTipoUsuario(TipoUsuario.Professor);
+            List<Usuario> alunos = usuarioDAO.findByTipoUsuario(TipoUsuario.ESTUDANTE);
+            List<Usuario> professores = usuarioDAO.findByTipoUsuario(TipoUsuario.PROFESSOR);
             List<Questionario> questionarios = questionarioDAO.findAll();
             
             // Definir atributos para a JSP

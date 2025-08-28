@@ -26,6 +26,11 @@ public class CompetenciaQuestionario {
     @Column(name = "descricao_prompt", columnDefinition = "TEXT")
     private String descricaoPrompt;
     
+    // Relacionamento com Questionario
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_questionario", nullable = false)
+    private Questionario questionario;
+    
     @OneToMany(mappedBy = "competenciaQuestionario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RespostaItemAvaliacao> respostasItens;
     
@@ -77,6 +82,14 @@ public class CompetenciaQuestionario {
     
     public void setRespostasItens(List<RespostaItemAvaliacao> respostasItens) {
         this.respostasItens = respostasItens;
+    }
+    
+    public Questionario getQuestionario() {
+        return questionario;
+    }
+    
+    public void setQuestionario(Questionario questionario) {
+        this.questionario = questionario;
     }
     
     @Override

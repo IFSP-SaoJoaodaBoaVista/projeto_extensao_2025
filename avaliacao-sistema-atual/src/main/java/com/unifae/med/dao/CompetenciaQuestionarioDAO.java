@@ -11,6 +11,27 @@ public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionar
         super(CompetenciaQuestionario.class);
     }
     
+    /**
+     * Busca competências específicas de um questionário
+     * @param questionarioId ID do questionário
+     * @return Lista de competências do questionário específico
+     */
+    public List<CompetenciaQuestionario> findByQuestionario(Integer questionarioId) {
+        EntityManager em = getEntityManager();
+        try {
+            String jpql = "SELECT cq FROM CompetenciaQuestionario cq " +
+                         "WHERE cq.questionario.idQuestionario = :questionarioId " +
+                         "ORDER BY cq.idCompetenciaQuestionario";
+            TypedQuery<CompetenciaQuestionario> query = em.createQuery(jpql, CompetenciaQuestionario.class);
+            query.setParameter("questionarioId", questionarioId);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar competências por questionário: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
+    
     public List<CompetenciaQuestionario> findByTipoItem(String tipoItem) {
         EntityManager em = getEntityManager();
         try {

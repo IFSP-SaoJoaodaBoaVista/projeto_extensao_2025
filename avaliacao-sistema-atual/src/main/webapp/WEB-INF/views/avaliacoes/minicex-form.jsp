@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%-- Função para buscar valor da resposta por nome da competência --%>
+<%-- Mapeamento mais robusto das respostas por competência --%>
 <c:set var="respostaEntrevistaMedica" value="0" />
 <c:set var="respostaExameFisico" value="0" />
 <c:set var="respostaProfissionalismo" value="0" />
@@ -14,31 +14,35 @@
 
 <c:if test="${respostas != null}">
     <c:forEach var="resposta" items="${respostas}">
+        <c:set var="nomeComp" value="${fn:toLowerCase(fn:trim(resposta.competenciaQuestionario.nomeCompetencia))}" />
+        <c:set var="valorInt" value="${resposta.respostaValorNumerico != null ? resposta.respostaValorNumerico.intValue() : 0}" />
+        
         <c:choose>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'entrevista')}">
-                <c:set var="respostaEntrevistaMedica" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'entrevista médica' || fn:contains(nomeComp, 'entrevista')}">
+                <c:set var="respostaEntrevistaMedica" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'exame')}">
-                <c:set var="respostaExameFisico" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'exame físico' || fn:contains(nomeComp, 'exame físico')}">
+                <c:set var="respostaExameFisico" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'profissional')}">
-                <c:set var="respostaProfissionalismo" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'profissionalismo' || fn:contains(nomeComp, 'profissionalismo')}">
+                <c:set var="respostaProfissionalismo" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'julgamento') || fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'clínico')}">
-                <c:set var="respostaJulgamentoClinico" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'julgamento clínico' || fn:contains(nomeComp, 'julgamento')}">
+                <c:set var="respostaJulgamentoClinico" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'comunicação')}">
-                <c:set var="respostaComunicacao" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'habilidade de comunicação' || fn:contains(nomeComp, 'comunicação')}">
+                <c:set var="respostaComunicacao" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'organização')}">
-                <c:set var="respostaOrganizacao" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'organização e eficiência' || fn:contains(nomeComp, 'organização')}">
+                <c:set var="respostaOrganizacao" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'geral')}">
-                <c:set var="respostaAvaliacaoGeral" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'avaliação clínica geral' || fn:contains(nomeComp, 'geral')}">
+                <c:set var="respostaAvaliacaoGeral" value="${valorInt}" />
             </c:when>
         </c:choose>
     </c:forEach>
 </c:if>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -46,11 +50,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário Mini-CEX - MEDICINA UNIFAE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/formularios.css">
+    <style>
+        .debug-info {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
     <div class="formulario-container">
         <div class="formulario-header">
             <div class="formulario-titulo">Formulário Mini-CEX (MEDICINA UNIFAE)</div>
+        </div>
+
+        <!-- DEBUG INFO (remover em produção) -->
+        <div class="debug-info">
+            <strong>DEBUG - Valores Mapeados:</strong><br>
+            Entrevista: ${respostaEntrevistaMedica} | 
+            Exame: ${respostaExameFisico} | 
+            Profissionalismo: ${respostaProfissionalismo} | 
+            Julgamento: ${respostaJulgamentoClinico} | 
+            Comunicação: ${respostaComunicacao} | 
+            Organização: ${respostaOrganizacao} | 
+            Geral: ${respostaAvaliacaoGeral}
+            <br><strong>Total Respostas:</strong> ${respostas != null ? respostas.size() : 0}
         </div>
 
         <form method="post" action="${pageContext.request.contextPath}/avaliacao/form">
@@ -292,11 +318,10 @@
                             </div>
                         </div>
                         <div class="comportamento-pos">
-                            Aborda o paciente de forma honesta e empática;<br><br>
-                            Comunica-se sem jargões ou preconceito;<br><br>
-                            Incorpora a perspectiva e repertório do paciente de modo sensível;<br><br>
-                            Oferece a hipótese diagnóstica de forma sensível;<br><br>
-                            Pactua o plano terapêutico de forma compreensível.
+                            Utiliza efetivamente as habilidades de comunicação;<br><br>
+                            Facilita a comunicação e demonstra interesse genuíno;<br><br>
+                            Responde adequadamente às necessidades do paciente;<br><br>
+                            Estabelece rapport e confiança.
                         </div>
                     </div>
                 </div>
@@ -306,12 +331,9 @@
                     <div class="competencia-header">Organização e Eficiência</div>
                     <div class="competencia-content">
                         <div class="comportamento-pre">
-                            Não define prioridades ou distribui adequadamente o tempo;<br><br>
-                            Parece não ter construído um raciocínio clínico;<br><br>
-                            Toma decisão desconsiderando o raciocínio clínico;<br><br>
-                            Registra de forma desordenada em prontuário;<br><br>
-                            Desconsidera custo/efetividade das intervenções;<br><br>
-                            Solicita exame/propõe terapêutica desconsiderando potenciais danos, efetividade ou custo, na perspectiva da melhor conduta.
+                            Não prioriza adequadamente;<br><br>
+                            Não utiliza o tempo de forma eficiente;<br><br>
+                            Desorganizado na abordagem.
                         </div>
                         <div class="escala-container">
                             <div class="escala-labels">
@@ -330,12 +352,9 @@
                             </div>
                         </div>
                         <div class="comportamento-pos">
-                            Utiliza o tempo de forma precisa;<br><br>
-                            Demonstra habilidades em priorizar tarefas;<br><br>
-                            Desempenha as tarefas em uma sequência lógica;<br><br>
-                            Reconhece limitações, observando riscos e benefícios;<br><br>
-                            Demonstra habilidade em utilizar recursos disponíveis, como exames complementares, e ferramentas de apoio ao diagnóstico;<br><br>
-                            Demonstra habilidade em documentar as informações relevantes de forma clara e concisa.
+                            Prioriza adequadamente;<br><br>
+                            Utiliza o tempo de forma eficiente;<br><br>
+                            Organizado na abordagem.
                         </div>
                     </div>
                 </div>
@@ -345,7 +364,9 @@
                     <div class="competencia-header">Avaliação Clínica Geral</div>
                     <div class="competencia-content">
                         <div class="comportamento-pre">
-                            Aborda o paciente de forma não sistematizada, mostra-se culturalmente insensível, desconsidera a perspectiva do paciente e toma decisão subestimando o raciocínio clinico e a utilização racional de recursos diagnósticos.
+                            Desempenho geral insatisfatório;<br><br>
+                            Necessita supervisão constante;<br><br>
+                            Não demonstra competência clínica adequada.
                         </div>
                         <div class="escala-container">
                             <div class="escala-labels">
@@ -362,55 +383,38 @@
                                     </label>
                                 </c:forEach>
                             </div>
-                            <div style="font-size: 10px; text-align: center; margin-top: 5px;">
-                                Avaliador, considere o atendimento observado como um todo e faça sua avaliação enfatizando o conceito global do desempenho do interno.
-                            </div>
                         </div>
                         <div class="comportamento-pos">
-                            Demonstra julgamento clínico satisfatório, síntese, cuidado, eficácia, eficiência, uso apropriado de recursos, equilibra riscos e benefícios, apresenta consciência das próprias limitações.
+                            Desempenho geral excelente;<br><br>
+                            Demonstra autonomia adequada;<br><br>
+                            Competência clínica bem desenvolvida.
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Feedback -->
-            <div class="feedback-section">
-                <div class="feedback-title">Feedback (preenchido pelo professor/preceptor)</div>
-                
+            <!-- Campos de Feedback -->
+            <div class="feedback-container">
                 <div class="feedback-item">
-                    <label>O que foi bom? (Fortalezas no desempenho do acadêmico)</label>
-                    <textarea name="feedbackPositivo">${avaliacao != null ? avaliacao.feedbackPositivo : ''}</textarea>
+                    <label>O que foi feito bem?</label>
+                    <textarea name="feedbackPositivo" rows="3" style="width: 100%;">${avaliacao != null ? avaliacao.feedbackPositivo : ''}</textarea>
                 </div>
                 
                 <div class="feedback-item">
-                    <label>O que poderia ter sido melhor? (Fragilidades no desempenho do acadêmico)</label>
-                    <textarea name="feedbackMelhoria">${avaliacao != null ? avaliacao.feedbackMelhoria : ''}</textarea>
+                    <label>Sugestões para melhoria:</label>
+                    <textarea name="feedbackMelhoria" rows="3" style="width: 100%;">${avaliacao != null ? avaliacao.feedbackMelhoria : ''}</textarea>
                 </div>
                 
                 <div class="feedback-item">
-                    <label>Contrato de aprendizagem (preenchido pelo acadêmico)</label>
-                    <label style="font-size: 11px; font-weight: normal;">Propostas efetivas de aprimoramento de habilidades. (Compromisso com plano de melhoria)</label>
-                    <textarea name="contratoAprendizagem">${avaliacao != null ? avaliacao.contratoAprendizagem : ''}</textarea>
+                    <label>Plano de ação/contrato de aprendizagem:</label>
+                    <textarea name="contratoAprendizagem" rows="3" style="width: 100%;">${avaliacao != null ? avaliacao.contratoAprendizagem : ''}</textarea>
                 </div>
             </div>
 
-            <!-- Assinaturas -->
-            <div class="assinaturas">
-                <div class="assinatura-campo">
-                    <div class="assinatura-linha"></div>
-                    <div class="assinatura-label">Assinatura e carimbo do Aluno</div>
-                </div>
-                <div class="assinatura-campo">
-                    <div class="assinatura-linha"></div>
-                    <div class="assinatura-label">Assinatura e carimbo do Professor/Preceptor</div>
-                </div>
-            </div>
-
-            <!-- Botões de Ação -->
-            <div class="botoes-acao">
-                <button type="submit" class="btn btn-primary">Salvar Avaliação</button>
-                <button type="button" class="btn" onclick="window.print()">Imprimir</button>
-                <a href="${pageContext.request.contextPath}/avaliacoes" class="btn">Cancelar</a>
+            <!-- Botões -->
+            <div class="botoes-container">
+                <button type="submit" class="btn-salvar">Salvar Avaliação</button>
+                <a href="${pageContext.request.contextPath}/avaliacoes" class="btn-cancelar">Cancelar</a>
             </div>
         </form>
     </div>

@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%-- Função para buscar valor da resposta por nome da competência --%>
+<%-- Mapeamento mais robusto das respostas por competência --%>
 <c:set var="respostaEntrevistaMedica" value="0" />
 <c:set var="respostaExameFisico" value="0" />
 <c:set var="respostaProfissionalismo" value="0" />
@@ -14,27 +14,30 @@
 
 <c:if test="${respostas != null}">
     <c:forEach var="resposta" items="${respostas}">
+        <c:set var="nomeComp" value="${fn:toLowerCase(fn:trim(resposta.competenciaQuestionario.nomeCompetencia))}" />
+        <c:set var="valorInt" value="${resposta.respostaValorNumerico != null ? resposta.respostaValorNumerico.intValue() : 0}" />
+        
         <c:choose>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'entrevista')}">
-                <c:set var="respostaEntrevistaMedica" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'entrevista médica' || fn:contains(nomeComp, 'entrevista')}">
+                <c:set var="respostaEntrevistaMedica" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'exame')}">
-                <c:set var="respostaExameFisico" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'exame físico' || fn:contains(nomeComp, 'exame físico')}">
+                <c:set var="respostaExameFisico" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'profissional')}">
-                <c:set var="respostaProfissionalismo" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'profissionalismo' || fn:contains(nomeComp, 'profissionalismo')}">
+                <c:set var="respostaProfissionalismo" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'julgamento') || fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'clínico')}">
-                <c:set var="respostaJulgamentoClinico" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'julgamento clínico' || fn:contains(nomeComp, 'julgamento')}">
+                <c:set var="respostaJulgamentoClinico" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'comunicação')}">
-                <c:set var="respostaComunicacao" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'habilidade de comunicação' || fn:contains(nomeComp, 'comunicação')}">
+                <c:set var="respostaComunicacao" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'organização')}">
-                <c:set var="respostaOrganizacao" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'organização e eficiência' || fn:contains(nomeComp, 'organização')}">
+                <c:set var="respostaOrganizacao" value="${valorInt}" />
             </c:when>
-            <c:when test="${fn:contains(fn:toLowerCase(resposta.competenciaQuestionario.nomeCompetencia), 'geral')}">
-                <c:set var="respostaAvaliacaoGeral" value="${resposta.respostaValorNumerico.intValue()}" />
+            <c:when test="${nomeComp eq 'avaliação clínica geral' || fn:contains(nomeComp, 'geral')}">
+                <c:set var="respostaAvaliacaoGeral" value="${valorInt}" />
             </c:when>
         </c:choose>
     </c:forEach>

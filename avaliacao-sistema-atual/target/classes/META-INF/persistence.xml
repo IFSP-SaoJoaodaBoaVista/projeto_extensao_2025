@@ -22,14 +22,14 @@
         <properties>
             <!-- Configuração do banco de dados MariaDB -->
             <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/unifae_med_app"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/unifae_med_app?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=America/Sao_Paulo"/>
             <property name="jakarta.persistence.jdbc.user" value="root"/>
             <property name="jakarta.persistence.jdbc.password" value=""/>
             
             <!-- Configurações do Hibernate -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="validate"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="true"/>
             
@@ -39,6 +39,18 @@
             <!-- Configurações de encoding -->
             <property name="hibernate.connection.characterEncoding" value="utf8"/>
             <property name="hibernate.connection.useUnicode" value="true"/>
+            
+            <!-- Configurações adicionais para estabilidade -->
+            <property name="hibernate.connection.autocommit" value="false"/>
+            <property name="hibernate.current_session_context_class" value="thread"/>
+            <property name="hibernate.jdbc.batch_size" value="20"/>
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+            <property name="hibernate.jdbc.batch_versioned_data" value="true"/>
+            
+            <!-- Configurações para evitar problemas de schema -->
+            <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false"/>
+            <property name="hibernate.globally_quoted_identifiers" value="false"/>
         </properties>
     </persistence-unit>
 </persistence>
