@@ -43,7 +43,7 @@ public class AvaliacaoFormServlet extends HttpServlet {
         String action = request.getParameter("action");
         String questionarioIdStr = request.getParameter("questionarioId");
         String avaliacaoIdStr = request.getParameter("id");
-        
+                
         try {
             // Carregar dados básicos
             List<Usuario> alunos = usuarioDAO.findByTipoUsuario(TipoUsuario.ESTUDANTE);
@@ -104,7 +104,7 @@ public class AvaliacaoFormServlet extends HttpServlet {
         
         String action = request.getParameter("action");
         String questionarioIdStr = request.getParameter("questionarioId");
-        String avaliacaoIdStr = request.getParameter("id");
+        String avaliacaoIdStr = request.getParameter("avaliacaoId");
         
         try {
             // Dados básicos da avaliação
@@ -231,13 +231,17 @@ public class AvaliacaoFormServlet extends HttpServlet {
      * Retorna o mapeamento de nomes de competências para nomes de parâmetros
      * baseado no tipo de questionário
      */
+    /**
+     * Retorna o mapeamento de nomes de competências para nomes de parâmetros
+     * baseado no tipo de questionário
+     */
     private Map<String, String> obterMapeamentoParametros(Questionario questionario) {
         Map<String, String> mapeamento = new HashMap<>();
-        
+
         String nomeQuestionario = questionario.getNomeModelo().toLowerCase();
-        
-        if (nomeQuestionario.contains("mini cex")) {
-            // Mapeamento para Mini CEX
+
+        if (nomeQuestionario.contains("mini cex") || (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor"))) {
+            // Mapeamento para Mini CEX e Avaliação 360° Professor
             mapeamento.put("entrevista médica", "resposta_entrevista_medica");
             mapeamento.put("exame físico", "resposta_exame_fisico");
             mapeamento.put("profissionalismo", "resposta_profissionalismo");
@@ -245,19 +249,9 @@ public class AvaliacaoFormServlet extends HttpServlet {
             mapeamento.put("habilidade de comunicação", "resposta_comunicacao");
             mapeamento.put("organização e eficiência", "resposta_organizacao");
             mapeamento.put("avaliação clínica geral", "resposta_avaliacao_geral");
-            
-        } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor")) {
-            // Mapeamento para Avaliação 360° Professor (mesmo que Mini CEX)
-            mapeamento.put("entrevista médica", "resposta_entrevista_medica");
-            mapeamento.put("exame físico", "resposta_exame_fisico");
-            mapeamento.put("profissionalismo", "resposta_profissionalismo");
-            mapeamento.put("julgamento clínico", "resposta_julgamento_clinico");
-            mapeamento.put("habilidade de comunicação", "resposta_comunicacao");
-            mapeamento.put("organização e eficiência", "resposta_organizacao");
-            mapeamento.put("avaliação clínica geral", "resposta_avaliacao_geral");
-            
+
         } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("pares")) {
-            // Mapeamento para Avaliação 360° Pares - Competências conforme PDF
+            // Mapeamento específico para 360° Pares
             mapeamento.put("anamnese", "resposta_anamnese");
             mapeamento.put("exame físico", "resposta_exame_fisico");
             mapeamento.put("raciocínio clínico", "resposta_raciocinio_clinico");
@@ -268,8 +262,34 @@ public class AvaliacaoFormServlet extends HttpServlet {
             mapeamento.put("atitude de compaixão e respeito", "resposta_compaixao");
             mapeamento.put("abordagem suave e sensível ao paciente", "resposta_abordagem_suave");
             mapeamento.put("comunicação e interação respeitosa com a equipe", "resposta_interacao_equipe");
+
+        } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("equipe")) {
+            // Mapeamento CORRIGIDO e específico para 360° Equipe
+            mapeamento.put("colaboração em equipe", "resposta_colaboracao_equipe");
+            mapeamento.put("comunicação interprofissional", "resposta_comunicacao_interprofissional");
+            mapeamento.put("respeito mútuo", "resposta_respeito_mutuo");
+            mapeamento.put("responsabilidade compartilhada", "resposta_responsabilidade_compartilhada");
+            mapeamento.put("liderança situacional", "resposta_lideranca_situacional");
+            mapeamento.put("resolução de conflitos", "resposta_resolucao_conflitos");
+            mapeamento.put("empatia profissional", "resposta_empatia_profissional");
+            mapeamento.put("ética no trabalho em equipe", "resposta_etica_trabalho_equipe");
+            mapeamento.put("flexibilidade e adaptação", "resposta_flexibilidade_adaptacao");
+            mapeamento.put("contribuição para o ambiente de trabalho", "resposta_contribuicao_ambiente");
+
+        } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("paciente")) {
+            // Mapeamento para Avaliação 360° Paciente
+            mapeamento.put("cortesia e educação", "resposta_cortesia_educacao");
+            mapeamento.put("respeito à privacidade", "resposta_respeito_privacidade");
+            mapeamento.put("demonstração de interesse", "resposta_demonstracao_interesse");
+            mapeamento.put("demonstração de cuidado", "resposta_demonstracao_cuidado");
+            mapeamento.put("clareza na comunicação", "resposta_clareza_comunicacao");
+            mapeamento.put("explicação sobre procedimentos", "resposta_explicacao_procedimentos");
+            mapeamento.put("envolvimento na tomada de decisão", "resposta_envolvimento_decisao");
+            mapeamento.put("capacidade de tranquilizar", "resposta_capacidade_tranquilizar");
+            mapeamento.put("tempo dedicado", "resposta_tempo_dedicado");
+            mapeamento.put("satisfação geral", "resposta_satisfacao_geral");
         }
-        
+
         return mapeamento;
     }
     
@@ -278,30 +298,34 @@ public class AvaliacaoFormServlet extends HttpServlet {
      */
     private String determinarJSP(String questionarioIdStr) {
         if (questionarioIdStr == null) {
-            // Fallback para Mini CEX se não conseguir determinar
-            return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
+            // Fallback para a lista se nenhum ID for fornecido
+            return "/avaliacoes";
         }
-        
+
         try {
             Integer questionarioId = Integer.parseInt(questionarioIdStr);
             Questionario questionario = questionarioDAO.findById(questionarioId).orElse(null);
-            
+
             if (questionario != null) {
                 String nomeQuestionario = questionario.getNomeModelo().toLowerCase();
-                
+
                 if (nomeQuestionario.contains("mini cex")) {
                     return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
                 } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-professor-form.jsp";
                 } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("pares")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-pares-form.jsp";
+                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("equipe")) { // <-- NOVA CONDIÇÃO
+                    return "/WEB-INF/views/avaliacoes/avaliacao360-equipe-form.jsp";
+                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("paciente")) { // <-- NOVA CONDIÇÃO
+                    return "/WEB-INF/views/avaliacoes/avaliacao360-paciente-form.jsp";
                 }
             }
         } catch (NumberFormatException e) {
             // Ignorar erro e usar JSP padrão
         }
-        
-        // Fallback para Mini CEX se não conseguir determinar
+
+        // Fallback para o primeiro formulário se não conseguir determinar
         return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
     }
 }

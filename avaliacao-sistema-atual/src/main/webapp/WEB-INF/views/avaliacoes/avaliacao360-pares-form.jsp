@@ -33,7 +33,7 @@
             <c:when test="${nomeComp eq 'profissionalismo' || fn:contains(nomeComp, 'profissionalismo')}">
                 <c:set var="respostaProfissionalismo" value="${valorInt}" />
             </c:when>
-            <c:when test="${nomeComp eq 'comunicação' || fn:contains(nomeComp, 'comunicação')}">
+            <c:when test="${nomeComp eq 'comunicação'}">
                 <c:set var="respostaComunicacao" value="${valorInt}" />
             </c:when>
             <c:when test="${nomeComp eq 'organização e eficiência' || fn:contains(nomeComp, 'organização')}">

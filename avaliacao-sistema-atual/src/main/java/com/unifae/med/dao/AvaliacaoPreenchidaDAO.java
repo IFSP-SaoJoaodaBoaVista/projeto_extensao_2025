@@ -27,7 +27,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "LEFT JOIN FETCH a.respostasItens " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             return query.getResultList();
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.alunoAvaliado = :alunoAvaliado " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("alunoAvaliado", alunoAvaliado);
             return query.getResultList();
@@ -88,7 +88,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.avaliador = :avaliador " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("avaliador", avaliador);
             return query.getResultList();
@@ -107,7 +107,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.questionario = :questionario " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("questionario", questionario);
             return query.getResultList();
@@ -126,7 +126,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.dataRealizacao BETWEEN :dataInicio AND :dataFim " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("dataInicio", dataInicio);
             query.setParameter("dataFim", dataFim);
@@ -146,7 +146,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.alunoAvaliado = :alunoAvaliado AND a.questionario = :questionario " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("alunoAvaliado", alunoAvaliado);
             query.setParameter("questionario", questionario);
@@ -166,7 +166,7 @@ public class AvaliacaoPreenchidaDAO extends GenericDAO<AvaliacaoPreenchida, Inte
                          "LEFT JOIN FETCH a.alunoAvaliado " +
                          "LEFT JOIN FETCH a.avaliador " +
                          "WHERE a.tipoAvaliadorNaoUsuario = :tipoAvaliadorNaoUsuario " +
-                         "ORDER BY a.dataRealizacao DESC";
+                         "ORDER BY a.idAvaliacaoPreenchida DESC";
             TypedQuery<AvaliacaoPreenchida> query = em.createQuery(jpql, AvaliacaoPreenchida.class);
             query.setParameter("tipoAvaliadorNaoUsuario", tipoAvaliadorNaoUsuario);
             return query.getResultList();
