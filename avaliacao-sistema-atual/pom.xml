@@ -1,33 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM.XML - ARQUIVO DE CONFIGURAÇÃO DO MAVEN
+    ==========================================
+    
+    Este arquivo define a configuração do projeto Maven para o Sistema de Avaliação UNIFAE.
+    Ele especifica as dependências, plugins e configurações necessárias para compilar,
+    testar e empacotar a aplicação web.
+    
+    ESTRUTURA DO PROJETO:
+    - Aplicação web Java (WAR)
+    - Framework: Jakarta EE 5.0 (migrado de Java EE)
+    - ORM: Hibernate 6.4.4 com JPA
+    - Banco de Dados: MariaDB
+    - Servidor: Apache Tomcat 10.1.42
+    - JDK: 21 (com preview features habilitadas)
+    
+    RELACIONAMENTO COM OUTROS ARQUIVOS:
+    - persistence.xml: Configuração JPA definida pelas dependências aqui
+    - web.xml: Configuração web usando as APIs Jakarta definidas aqui
+    - Entidades JPA: Usam as anotações das dependências JPA/Hibernate
+    - Servlets: Usam as APIs Jakarta Servlet definidas aqui
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
+  <!-- Versão do modelo POM (sempre 4.0.0 para Maven 2+) -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.unifae.med</groupId>
-  <artifactId>avaliacao-sistema</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>Sistema de Avaliação UNIFAE</name>
-  <url>http://maven.apache.org</url>
+  
+  <!-- COORDENADAS DO PROJETO (GAV - Group, Artifact, Version) -->
+  <!-- Identificação única do projeto no repositório Maven -->
+  <groupId>com.unifae.med</groupId>                    <!-- Organização/domínio -->
+  <artifactId>avaliacao-sistema</artifactId>           <!-- Nome do projeto -->
+  <version>1.0-SNAPSHOT</version>                      <!-- Versão (SNAPSHOT = desenvolvimento) -->
+  <packaging>war</packaging>                           <!-- Tipo de empacotamento (WAR = Web Application Archive) -->
+  <name>Sistema de Avaliação UNIFAE</name>             <!-- Nome legível do projeto -->
+  <url>http://maven.apache.org</url>                   <!-- URL do projeto -->
 
+  <!-- PROPRIEDADES GLOBAIS -->
+  <!-- Centraliza versões e configurações para reutilização -->
   <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- CONFIGURAÇÕES DE COMPILAÇÃO -->
+    <maven.compiler.source>21</maven.compiler.source>           <!-- Versão Java fonte -->
+    <maven.compiler.target>21</maven.compiler.target>           <!-- Versão Java destino -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  <!-- Encoding dos arquivos -->
+    
+    <!-- VERSÕES DAS DEPENDÊNCIAS PRINCIPAIS -->
+    <!-- Hibernate: Framework ORM para mapeamento objeto-relacional -->
     <hibernate.version>6.4.4.Final</hibernate.version>
-    <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
-    <jakarta.jsp.version>3.1.0</jakarta.jsp.version>
-    <jakarta.jstl.version>2.0.0</jakarta.jstl.version>
-    <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-    <jakarta.validation.version>3.0.2</jakarta.validation.version>
-    <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
-    <mariadb.version>3.3.3</mariadb.version>
-    <jackson.version>2.17.0</jackson.version>
-    <junit.version>5.10.2</junit.version>
+    
+    <!-- Jakarta EE: Sucessor do Java EE, APIs para desenvolvimento web -->
+    <jakarta.servlet.version>5.0.0</jakarta.servlet.version>     <!-- API para Servlets -->
+    <jakarta.jsp.version>3.1.0</jakarta.jsp.version>             <!-- API para JSP -->
+    <jakarta.jstl.version>2.0.0</jakarta.jstl.version>           <!-- JSTL para JSP -->
+    <jakarta.persistence.version>3.1.0</jakarta.persistence.version>  <!-- JPA -->
+    <jakarta.validation.version>3.0.2</jakarta.validation.version>     <!-- Bean Validation -->
+    
+    <!-- OUTRAS DEPENDÊNCIAS -->
+    <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>  <!-- Implementação Bean Validation -->
+    <mariadb.version>3.3.3</mariadb.version>                     <!-- Driver MariaDB -->
+    <jackson.version>2.17.0</jackson.version>                    <!-- Processamento JSON -->
+    <junit.version>5.10.2</junit.version>                        <!-- Framework de testes -->
   </properties>
 
+  <!-- DEPENDÊNCIAS DO PROJETO -->
+  <!-- Bibliotecas externas necessárias para compilação e execução -->
   <dependencies>
+    
+    <!-- ===== JAKARTA EE APIs ===== -->
+    <!-- APIs fundamentais para desenvolvimento web com Jakarta EE -->
+    
     <!-- Jakarta Servlet API -->
+    <!-- Fornece classes para criação de servlets (controladores web) -->
+    <!-- Scope 'provided': fornecida pelo servidor (Tomcat) -->
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
@@ -36,6 +81,8 @@
     </dependency>
 
     <!-- Jakarta JSP API -->
+    <!-- Fornece classes para JavaServer Pages (views) -->
+    <!-- Scope 'provided': fornecida pelo servidor (Tomcat) -->
     <dependency>
       <groupId>jakarta.servlet.jsp</groupId>
       <artifactId>jakarta.servlet.jsp-api</artifactId>
@@ -43,7 +90,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- ===== PERSISTÊNCIA DE DADOS ===== -->
+    <!-- Tecnologias para acesso e mapeamento de dados -->
+    
     <!-- Jakarta Persistence API (JPA) -->
+    <!-- API padrão para mapeamento objeto-relacional -->
+    <!-- Usada pelas entidades em src/main/java/com/unifae/med/entity/ -->
     <dependency>
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
@@ -51,6 +103,8 @@
     </dependency>
 
     <!-- Hibernate Core -->
+    <!-- Implementação JPA mais popular, fornece ORM completo -->
+    <!-- Configurado em persistence.xml -->
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
@@ -58,13 +112,20 @@
     </dependency>
 
     <!-- MariaDB Connector -->
+    <!-- Driver JDBC para conexão com banco MariaDB -->
+    <!-- Configurado em persistence.xml com URL de conexão -->
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
       <version>${mariadb.version}</version>
     </dependency>
 
+    <!-- ===== TECNOLOGIAS WEB ===== -->
+    <!-- Bibliotecas para desenvolvimento de interfaces web -->
+    
     <!-- Jakarta JSTL API -->
+    <!-- API para JSP Standard Tag Library -->
+    <!-- Permite uso de tags customizadas em JSP -->
     <dependency>
       <groupId>jakarta.servlet.jsp.jstl</groupId>
       <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
@@ -72,20 +133,32 @@
     </dependency>
     
     <!-- Jakarta JSTL Implementation -->
+    <!-- Implementação das tags JSTL -->
+    <!-- Usada nos arquivos JSP em src/main/webapp/WEB-INF/views/ -->
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>jakarta.servlet.jsp.jstl</artifactId>
       <version>${jakarta.jstl.version}</version>
     </dependency>
 
+    <!-- ===== PROCESSAMENTO DE DADOS ===== -->
+    <!-- Bibliotecas para manipulação de dados -->
+    
     <!-- JSON Processing -->
+    <!-- Biblioteca para serialização/deserialização JSON -->
+    <!-- Útil para APIs REST e comunicação AJAX -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
     </dependency>
 
+    <!-- ===== VALIDAÇÃO ===== -->
+    <!-- Tecnologias para validação de dados -->
+    
     <!-- Jakarta Validation API -->
+    <!-- API padrão para validação de beans -->
+    <!-- Permite anotações como @NotNull, @Size nas entidades -->
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
@@ -93,20 +166,29 @@
     </dependency>
 
     <!-- Hibernate Validator -->
+    <!-- Implementação de referência da Bean Validation -->
+    <!-- Processa anotações de validação nas entidades -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
       <version>${hibernate.validator.version}</version>
     </dependency>
 
-    <!-- Expression Language Implementation (required for Hibernate Validator) -->
+    <!-- Expression Language Implementation -->
+    <!-- Necessário para Hibernate Validator funcionar -->
+    <!-- Processa expressões EL em mensagens de validação -->
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.el</artifactId>
       <version>4.0.2</version>
     </dependency>
 
+    <!-- ===== TESTES ===== -->
+    <!-- Frameworks para testes unitários e integração -->
+    
     <!-- JUnit 5 for testing -->
+    <!-- Framework moderno para testes unitários -->
+    <!-- Scope 'test': usado apenas durante testes -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -115,35 +197,50 @@
     </dependency>
   </dependencies>
 
+  <!-- CONFIGURAÇÃO DE BUILD -->
+  <!-- Plugins e configurações para compilação e empacotamento -->
   <build>
+    <!-- Nome do arquivo WAR gerado (sem extensão) -->
     <finalName>avaliacao-sistema</finalName>
+    
     <plugins>
+      <!-- ===== PLUGIN DE COMPILAÇÃO ===== -->
+      <!-- Configura compilação Java com JDK 21 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.12.1</version>
         <configuration>
-          <source>21</source>
-          <target>21</target>
-          <encoding>UTF-8</encoding>
+          <source>21</source>                    <!-- Versão Java fonte -->
+          <target>21</target>                    <!-- Versão Java destino -->
+          <encoding>UTF-8</encoding>             <!-- Encoding dos arquivos -->
           <compilerArgs>
+            <!-- Habilita preview features do JDK 21 -->
             <arg>--enable-preview</arg>
           </compilerArgs>
         </configuration>
       </plugin>
+      
+      <!-- ===== PLUGIN WAR ===== -->
+      <!-- Configura empacotamento da aplicação web -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.4.0</version>
         <configuration>
+          <!-- Permite build sem web.xml (usando anotações) -->
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
+      
+      <!-- ===== PLUGIN DE TESTES ===== -->
+      <!-- Configura execução de testes unitários -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
         <configuration>
+          <!-- Habilita preview features durante testes -->
           <argLine>--enable-preview</argLine>
         </configuration>
       </plugin>

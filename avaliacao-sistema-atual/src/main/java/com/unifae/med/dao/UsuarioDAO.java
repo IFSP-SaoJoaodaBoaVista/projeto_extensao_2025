@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
-    
+
     public UsuarioDAO() {
         super(Usuario.class);
     }
-    
+
     public Optional<Usuario> findByEmail(String email) {
         EntityManager em = getEntityManager();
         try {
@@ -30,7 +30,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public Optional<Usuario> findByMatriculaRA(String matriculaRA) {
         EntityManager em = getEntityManager();
         try {
@@ -47,7 +47,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public List<Usuario> findByTipoUsuario(TipoUsuario tipoUsuario) {
         EntityManager em = getEntityManager();
         try {
@@ -61,7 +61,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public List<Usuario> findAtivos() {
         EntityManager em = getEntityManager();
         try {
@@ -74,7 +74,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public List<Usuario> findByNomeContaining(String nome) {
         EntityManager em = getEntityManager();
         try {
@@ -88,7 +88,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public boolean existsByEmail(String email) {
         EntityManager em = getEntityManager();
         try {
@@ -102,7 +102,7 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
-    
+
     public boolean existsByMatriculaRA(String matriculaRA) {
         EntityManager em = getEntityManager();
         try {
@@ -117,4 +117,3 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
         }
     }
 }
-

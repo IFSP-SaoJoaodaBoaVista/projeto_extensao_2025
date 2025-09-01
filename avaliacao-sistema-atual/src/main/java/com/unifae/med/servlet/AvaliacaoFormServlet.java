@@ -17,14 +17,14 @@ import java.util.Map;
 
 @WebServlet("/avaliacao/form")
 public class AvaliacaoFormServlet extends HttpServlet {
-    
+
     private AvaliacaoPreenchidaDAO avaliacaoDAO;
     private QuestionarioDAO questionarioDAO;
     private UsuarioDAO usuarioDAO;
     private CompetenciaQuestionarioDAO competenciaDAO;
     private RespostaItemAvaliacaoDAO respostaDAO;
     private LocalEventoDAO localEventoDAO;
-    
+
     @Override
     public void init() throws ServletException {
         super.init();
@@ -35,77 +35,77 @@ public class AvaliacaoFormServlet extends HttpServlet {
         this.respostaDAO = new RespostaItemAvaliacaoDAO();
         this.localEventoDAO = new LocalEventoDAO();
     }
-    
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String action = request.getParameter("action");
         String questionarioIdStr = request.getParameter("questionarioId");
         String avaliacaoIdStr = request.getParameter("id");
-                
+
         try {
             // Carregar dados básicos
             List<Usuario> alunos = usuarioDAO.findByTipoUsuario(TipoUsuario.ESTUDANTE);
             List<Usuario> professores = usuarioDAO.findByTipoUsuario(TipoUsuario.PROFESSOR);
             List<LocalEvento> locaisEventos = localEventoDAO.findAll();
             List<Questionario> questionarios = questionarioDAO.findAll();
-            
+
             request.setAttribute("alunos", alunos);
             request.setAttribute("professores", professores);
             request.setAttribute("locaisEventos", locaisEventos);
             request.setAttribute("questionarios", questionarios);
             request.setAttribute("action", action);
-            
-        // Se for edição, carregar dados da avaliação PRIMEIRO
-        if ("edit".equals(action) && avaliacaoIdStr != null) {
-            Integer avaliacaoId = Integer.parseInt(avaliacaoIdStr);
-            AvaliacaoPreenchida avaliacao = avaliacaoDAO.findById(avaliacaoId)
-                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
-            
-            // Se questionarioId não foi fornecido, usar o da avaliação IMEDIATAMENTE
-            if (questionarioIdStr == null) {
-                questionarioIdStr = avaliacao.getQuestionario().getIdQuestionario().toString();
+
+            // Se for edição, carregar dados da avaliação PRIMEIRO
+            if ("edit".equals(action) && avaliacaoIdStr != null) {
+                Integer avaliacaoId = Integer.parseInt(avaliacaoIdStr);
+                AvaliacaoPreenchida avaliacao = avaliacaoDAO.findById(avaliacaoId)
+                        .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+
+                // Se questionarioId não foi fornecido, usar o da avaliação IMEDIATAMENTE
+                if (questionarioIdStr == null) {
+                    questionarioIdStr = avaliacao.getQuestionario().getIdQuestionario().toString();
+                }
+
+                // Carregar respostas com eager loading garantido
+                List<RespostaItemAvaliacao> respostas = respostaDAO.findByAvaliacaoPreenchida(avaliacao);
+
+                // Definir atributos com dados completos
+                request.setAttribute("avaliacao", avaliacao);
+                request.setAttribute("respostas", respostas);
+                request.setAttribute("questionarioIdSelecionado", avaliacao.getQuestionario().getIdQuestionario());
             }
-            
-            // Carregar respostas com eager loading garantido
-            List<RespostaItemAvaliacao> respostas = respostaDAO.findByAvaliacaoPreenchida(avaliacao);
-            
-            // Definir atributos com dados completos
-            request.setAttribute("avaliacao", avaliacao);
-            request.setAttribute("respostas", respostas);
-            request.setAttribute("questionarioIdSelecionado", avaliacao.getQuestionario().getIdQuestionario());
-        }
-        
-        // Carregar questionário se fornecido
-        if (questionarioIdStr != null) {
-            Integer questionarioId = Integer.parseInt(questionarioIdStr);
-            request.setAttribute("questionarioIdSelecionado", questionarioId);
-            
-            Questionario questionario = questionarioDAO.findById(questionarioId)
-                .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
-            request.setAttribute("questionario", questionario);
-        }
-            
+
+            // Carregar questionário se fornecido
+            if (questionarioIdStr != null) {
+                Integer questionarioId = Integer.parseInt(questionarioIdStr);
+                request.setAttribute("questionarioIdSelecionado", questionarioId);
+
+                Questionario questionario = questionarioDAO.findById(questionarioId)
+                        .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
+                request.setAttribute("questionario", questionario);
+            }
+
             // Redirecionar para o formulário apropriado baseado no questionário
             String jspPath = determinarJSP(questionarioIdStr);
             request.getRequestDispatcher(jspPath).forward(request, response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("erro", "Erro ao carregar formulário: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
         }
     }
-    
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String action = request.getParameter("action");
         String questionarioIdStr = request.getParameter("questionarioId");
         String avaliacaoIdStr = request.getParameter("avaliacaoId");
-        
+
         try {
             // Dados básicos da avaliação
             String alunoAvaliadoIdStr = request.getParameter("alunoAvaliadoId");
@@ -119,32 +119,33 @@ public class AvaliacaoFormServlet extends HttpServlet {
             String feedbackPositivo = request.getParameter("feedbackPositivo");
             String feedbackMelhoria = request.getParameter("feedbackMelhoria");
             String contratoAprendizagem = request.getParameter("contratoAprendizagem");
-            
+
             // Buscar entidades
             Integer questionarioId = Integer.parseInt(questionarioIdStr);
             Questionario questionario = questionarioDAO.findById(questionarioId)
-                .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
-            
+                    .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
+
             Integer alunoAvaliadoId = Integer.parseInt(alunoAvaliadoIdStr);
             Usuario alunoAvaliado = usuarioDAO.findById(alunoAvaliadoId)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-            
+                    .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
             Usuario avaliador = null;
-            if (avaliadorIdStr != null && !avaliadorIdStr.equals("0")) {
+            // CONDIÇÃO CORRIGIDA PARA EVITAR ERRO COM STRING VAZIA
+            if (avaliadorIdStr != null && !avaliadorIdStr.isEmpty() && !avaliadorIdStr.equals("0")) {
                 Integer avaliadorId = Integer.parseInt(avaliadorIdStr);
                 avaliador = usuarioDAO.findById(avaliadorId).orElse(null);
             }
-            
+
             // Criar ou buscar avaliação
             AvaliacaoPreenchida avaliacao;
             if ("edit".equals(action) && avaliacaoIdStr != null) {
                 Integer avaliacaoId = Integer.parseInt(avaliacaoIdStr);
                 avaliacao = avaliacaoDAO.findById(avaliacaoId)
-                    .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+                        .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
             } else {
                 avaliacao = new AvaliacaoPreenchida();
             }
-            
+
             // Definir dados da avaliação
             avaliacao.setQuestionario(questionario);
             avaliacao.setAlunoAvaliado(alunoAvaliado);
@@ -152,67 +153,68 @@ public class AvaliacaoFormServlet extends HttpServlet {
             avaliacao.setTipoAvaliadorNaoUsuario(tipoAvaliadorNaoUsuario);
             avaliacao.setNomeAvaliadorNaoUsuario(nomeAvaliadorNaoUsuario);
             avaliacao.setDataRealizacao(LocalDate.parse(dataRealizacaoStr));
-            
+
             if (horarioInicioStr != null && !horarioInicioStr.isEmpty()) {
                 avaliacao.setHorarioInicio(LocalTime.parse(horarioInicioStr));
             }
             if (horarioFimStr != null && !horarioFimStr.isEmpty()) {
                 avaliacao.setHorarioFim(LocalTime.parse(horarioFimStr));
             }
-            
+
             avaliacao.setLocalRealizacao(localRealizacao);
             avaliacao.setFeedbackPositivo(feedbackPositivo);
             avaliacao.setFeedbackMelhoria(feedbackMelhoria);
             avaliacao.setContratoAprendizagem(contratoAprendizagem);
-            
+
             // Salvar avaliação
             avaliacao = avaliacaoDAO.save(avaliacao);
-            
+
             // Se for edição, remover respostas antigas
             if ("edit".equals(action)) {
                 respostaDAO.deleteByAvaliacaoPreenchida(avaliacao);
             }
-            
+
             // Processar respostas das competências com mapeamento correto
             processarRespostasCompetencias(request, avaliacao, questionario);
-            
+
             // Redirecionar para a lista de avaliações
             response.sendRedirect(request.getContextPath() + "/avaliacoes?success=true");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("erro", "Erro ao salvar avaliação: " + e.getMessage());
             doGet(request, response);
         }
     }
-    
+
     /**
-     * Processa as respostas das competências com mapeamento correto dos nomes dos parâmetros
+     * Processa as respostas das competências com mapeamento correto dos nomes
+     * dos parâmetros
      */
-    private void processarRespostasCompetencias(HttpServletRequest request, 
-                                              AvaliacaoPreenchida avaliacao, 
-                                              Questionario questionario) {
-        
+    private void processarRespostasCompetencias(HttpServletRequest request,
+            AvaliacaoPreenchida avaliacao,
+            Questionario questionario) {
+
         // Buscar APENAS competências deste questionário específico
-        List<CompetenciaQuestionario> competencias = 
-            competenciaDAO.findByQuestionario(questionario.getIdQuestionario());
-        
+        List<CompetenciaQuestionario> competencias
+                = competenciaDAO.findByQuestionario(questionario.getIdQuestionario());
+
         // Obter mapeamento de nomes de parâmetros para este questionário
         Map<String, String> mapeamentoParametros = obterMapeamentoParametros(questionario);
-        
+
         // Salvar respostas
         for (CompetenciaQuestionario competencia : competencias) {
             String nomeCompetencia = competencia.getNomeCompetencia().toLowerCase().trim();
             String nomeParametro = mapeamentoParametros.get(nomeCompetencia);
-            
+
             if (nomeParametro != null) {
                 String respostaValorStr = request.getParameter(nomeParametro);
                 String naoAvaliadoStr = request.getParameter("nao_avaliado_" + nomeParametro.replace("resposta_", ""));
-                
+
                 RespostaItemAvaliacao resposta = new RespostaItemAvaliacao();
                 resposta.setAvaliacaoPreenchida(avaliacao);
                 resposta.setCompetenciaQuestionario(competencia);
-                
+
                 if ("true".equals(naoAvaliadoStr)) {
                     resposta.setNaoAvaliado(true);
                 } else {
@@ -221,12 +223,12 @@ public class AvaliacaoFormServlet extends HttpServlet {
                         resposta.setRespostaValorNumerico(new BigDecimal(respostaValorStr));
                     }
                 }
-                
+
                 respostaDAO.save(resposta);
             }
         }
     }
-    
+
     /**
      * Retorna o mapeamento de nomes de competências para nomes de parâmetros
      * baseado no tipo de questionário
@@ -240,7 +242,7 @@ public class AvaliacaoFormServlet extends HttpServlet {
 
         String nomeQuestionario = questionario.getNomeModelo().toLowerCase();
 
-        if (nomeQuestionario.contains("mini cex") || (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor"))) {
+        if (nomeQuestionario.contains("(mini-cex)") || (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor"))) {
             // Mapeamento para Mini CEX e Avaliação 360° Professor
             mapeamento.put("entrevista médica", "resposta_entrevista_medica");
             mapeamento.put("exame físico", "resposta_exame_fisico");
@@ -292,7 +294,7 @@ public class AvaliacaoFormServlet extends HttpServlet {
 
         return mapeamento;
     }
-    
+
     /**
      * Determina qual JSP usar baseado no questionário
      */
@@ -329,4 +331,3 @@ public class AvaliacaoFormServlet extends HttpServlet {
         return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
     }
 }
-

@@ -1,60 +1,234 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    WEB.XML - DESCRITOR DE DEPLOYMENT DA APLICAÇÃO WEB
+    ==================================================
+    
+    Este arquivo é o descritor de deployment (DD) da aplicação web Jakarta EE.
+    Define configurações fundamentais sobre como a aplicação deve ser executada
+    pelo container de servlets (Tomcat).
+    
+    RESPONSABILIDADES:
+    - Configurar página inicial da aplicação
+    - Definir filtros para processamento de requisições
+    - Configurar encoding de caracteres (UTF-8)
+    - Estabelecer timeout de sessão
+    - Mapear recursos estáticos (CSS, JS, imagens)
+    - Definir parâmetros de inicialização
+    
+    VERSÃO JAKARTA EE:
+    - Versão 5.0 (sucessor do Java EE)
+    - Namespace jakarta.ee (migrado de java.sun.com)
+    - Compatível com Tomcat 10.x+
+    
+    RELACIONAMENTO COM OUTROS ARQUIVOS:
+    - Servlets: Mapeamentos automáticos via @WebServlet
+    - JSPs: Página inicial definida aqui (index.jsp)
+    - Recursos estáticos: CSS, JS, imagens mapeados aqui
+    - context.xml: Configurações de contexto complementares
+    - pom.xml: Dependências Jakarta EE definidas lá
+    
+    PADRÃO DE CONFIGURAÇÃO:
+    - Configuração híbrida: XML + anotações
+    - Servlets usam @WebServlet (anotações)
+    - Configurações globais usam web.xml
+    
+    CICLO DE VIDA:
+    1. Container lê web.xml na inicialização
+    2. Aplica configurações globais
+    3. Carrega e mapeia servlets
+    4. Aplicação fica pronta para requisições
+-->
+
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee 
          https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
     
+    <!--
+        NOME DE EXIBIÇÃO DA APLICAÇÃO
+        =============================
+        Nome legível da aplicação exibido em ferramentas de administração.
+        Usado por IDEs e servidores para identificação.
+    -->
     <display-name>Sistema de Avaliação UNIFAE</display-name>
     
-    <!-- Página inicial -->
+    <!--
+        CONFIGURAÇÃO DE PÁGINA INICIAL
+        ===============================
+        Define qual arquivo será servido quando usuário acessa a raiz da aplicação.
+        
+        COMPORTAMENTO:
+        - URL: http://localhost:8080/avaliacao-sistema/
+        - Redireciona para: index.jsp
+        - Ordem de prioridade: primeiro arquivo encontrado na lista
+        
+        RELACIONAMENTO:
+        - index.jsp: Página inicial documentada anteriormente
+        - Pode incluir múltiplas opções (index.html, index.htm, etc.)
+    -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     
-    <!-- Configuração de encoding -->
+    <!--
+        FILTRO DE ENCODING DE CARACTERES
+        =================================
+        Configura encoding UTF-8 para todas as requisições e respostas.
+        Essencial para suporte a caracteres especiais e acentos.
+        
+        PROBLEMA RESOLVIDO:
+        - Caracteres especiais aparecendo como "?" ou símbolos estranhos
+        - Acentos não exibidos corretamente
+        - Problemas de encoding em formulários
+        
+        FUNCIONAMENTO:
+        1. Filtro intercepta todas as requisições (/*) 
+        2. Define encoding UTF-8 na requisição
+        3. Define encoding UTF-8 na resposta
+        4. Passa requisição para próximo filtro/servlet
+    -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
+        <!--
+            CLASSE DO FILTRO
+            ================
+            Usa filtro padrão do Tomcat para encoding.
+            Alternativa: implementar filtro customizado.
+        -->
         <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+        <!--
+            PARÂMETRO DE INICIALIZAÇÃO
+            ==========================
+            Define UTF-8 como encoding padrão.
+            Suporta caracteres de todas as linguagens.
+        -->
         <init-param>
             <param-name>encoding</param-name>
             <param-value>UTF-8</param-value>
         </init-param>
     </filter>
+    
+    <!--
+        MAPEAMENTO DO FILTRO
+        ====================
+        Define quais URLs serão processadas pelo filtro.
+        /* = todas as URLs da aplicação
+        
+        ORDEM DE EXECUÇÃO:
+        1. Requisição chega ao servidor
+        2. Filtro de encoding processa primeiro
+        3. Outros filtros (se houver)
+        4. Servlet de destino
+        5. Resposta volta pelos filtros (ordem inversa)
+    -->
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     
-    <!-- Configuração de sessão -->
+    <!--
+        CONFIGURAÇÃO DE SESSÃO HTTP
+        ===========================
+        Define comportamento das sessões de usuário.
+        
+        TIMEOUT DE SESSÃO:
+        - 30 minutos de inatividade
+        - Após timeout, sessão é invalidada automaticamente
+        - Usuário precisa fazer login novamente
+        
+        SEGURANÇA:
+        - Previne sessões "órfãs" consumindo memória
+        - Força reautenticação após período de inatividade
+        - Reduz risco de sequestro de sessão
+        
+        RELACIONAMENTO:
+        - Servlets: Usam HttpSession para armazenar dados
+        - JSPs: Acessam sessão via objeto implícito 'session'
+        - Autenticação: Controla tempo de login válido
+    -->
     <session-config>
-        <session-timeout>30</session-timeout>
+        <session-timeout>30</session-timeout>  <!-- 30 minutos -->
     </session-config>
     
-    <!-- Configuração de recursos estáticos -->
+    <!--
+        MAPEAMENTO DE RECURSOS ESTÁTICOS
+        =================================
+        Configura como arquivos estáticos (CSS, JS, imagens) são servidos.
+        Usa servlet 'default' do Tomcat para servir arquivos estáticos.
+        
+        BENEFÍCIOS:
+        - Performance otimizada para arquivos estáticos
+        - Cache automático pelo navegador
+        - Compressão automática (se configurada)
+        - Não passa por processamento de servlet customizado
+        
+        TIPOS DE ARQUIVO MAPEADOS:
+        - CSS: Folhas de estilo
+        - JS: Scripts JavaScript
+        - PNG, JPG, GIF: Imagens
+        
+        RELACIONAMENTO:
+        - css/formularios.css: Estilos importados nas JSPs
+        - Imagens de interface e ícones
+        - Scripts JavaScript para interatividade
+    -->
+    
+    <!-- Mapeamento para arquivos CSS -->
     <servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.css</url-pattern>
+        <servlet-name>default</servlet-name>  <!-- Servlet padrão do Tomcat -->
+        <url-pattern>*.css</url-pattern>      <!-- Todos os arquivos .css -->
     </servlet-mapping>
     
+    <!-- Mapeamento para arquivos JavaScript -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.js</url-pattern>
+        <url-pattern>*.js</url-pattern>       <!-- Todos os arquivos .js -->
     </servlet-mapping>
     
+    <!-- Mapeamento para imagens PNG -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.png</url-pattern>
+        <url-pattern>*.png</url-pattern>      <!-- Todos os arquivos .png -->
     </servlet-mapping>
     
+    <!-- Mapeamento para imagens JPG -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.jpg</url-pattern>
+        <url-pattern>*.jpg</url-pattern>      <!-- Todos os arquivos .jpg -->
     </servlet-mapping>
     
+    <!-- Mapeamento para imagens GIF -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.gif</url-pattern>
+        <url-pattern>*.gif</url-pattern>      <!-- Todos os arquivos .gif -->
     </servlet-mapping>
+    
+    <!--
+        OBSERVAÇÕES IMPORTANTES
+        =======================
+        
+        1. SERVLETS NÃO MAPEADOS AQUI:
+           - Usam anotação @WebServlet nas classes Java
+           - Mapeamento automático pelo container
+           - Exemplos: AvaliacaoListServlet, TestServlet, etc.
+        
+        2. ORDEM DE PRECEDÊNCIA:
+           - Mapeamentos específicos têm prioridade
+           - Mapeamentos por extensão (*.css) têm prioridade sobre /*
+           - Servlets anotados têm prioridade sobre web.xml
+        
+        3. CONFIGURAÇÕES AUSENTES (INTENCIONALMENTE):
+           - Security constraints: Sistema não implementa autenticação ainda
+           - Error pages: Tratamento de erro feito nos servlets
+           - Context parameters: Não necessários para este sistema
+           - Listeners: Não utilizados nesta versão
+        
+        4. COMPATIBILIDADE:
+           - Jakarta EE 5.0: Compatível com Tomcat 10.x+
+           - Namespace jakarta: Migrado de javax (Java EE legacy)
+           - Schema XSD: Validação automática da configuração
+    -->
+    
 </web-app>
 

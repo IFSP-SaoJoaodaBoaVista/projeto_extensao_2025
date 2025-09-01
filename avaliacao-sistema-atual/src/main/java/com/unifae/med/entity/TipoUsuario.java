@@ -6,4 +6,3 @@ public enum TipoUsuario {
     COORDENADOR,
     ADMINISTRADOR
 }
-

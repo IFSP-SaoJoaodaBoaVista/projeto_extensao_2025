@@ -8,18 +8,18 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, Integer> {
-    
+
     public RespostaItemAvaliacaoDAO() {
         super(RespostaItemAvaliacao.class);
     }
-    
+
     public List<RespostaItemAvaliacao> findByAvaliacaoPreenchida(AvaliacaoPreenchida avaliacaoPreenchida) {
         EntityManager em = getEntityManager();
         try {
-            String jpql = "SELECT r FROM RespostaItemAvaliacao r " +
-                         "LEFT JOIN FETCH r.competenciaQuestionario " +
-                         "WHERE r.avaliacaoPreenchida = :avaliacaoPreenchida " +
-                         "ORDER BY r.competenciaQuestionario.nomeCompetencia";
+            String jpql = "SELECT r FROM RespostaItemAvaliacao r "
+                    + "LEFT JOIN FETCH r.competenciaQuestionario "
+                    + "WHERE r.avaliacaoPreenchida = :avaliacaoPreenchida "
+                    + "ORDER BY r.competenciaQuestionario.nomeCompetencia";
             TypedQuery<RespostaItemAvaliacao> query = em.createQuery(jpql, RespostaItemAvaliacao.class);
             query.setParameter("avaliacaoPreenchida", avaliacaoPreenchida);
             return query.getResultList();
@@ -29,7 +29,7 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
             em.close();
         }
     }
-    
+
     public List<RespostaItemAvaliacao> findByCompetenciaQuestionario(CompetenciaQuestionario competenciaQuestionario) {
         EntityManager em = getEntityManager();
         try {
@@ -43,7 +43,7 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
             em.close();
         }
     }
-    
+
     public List<RespostaItemAvaliacao> findByAvaliacaoPreenchidaAndCompetenciaQuestionario(
             AvaliacaoPreenchida avaliacaoPreenchida, CompetenciaQuestionario competenciaQuestionario) {
         EntityManager em = getEntityManager();
@@ -59,7 +59,7 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
             em.close();
         }
     }
-    
+
     public List<RespostaItemAvaliacao> findNaoAvaliadas() {
         EntityManager em = getEntityManager();
         try {
@@ -72,7 +72,7 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
             em.close();
         }
     }
-    
+
     public long countByAvaliacaoPreenchida(AvaliacaoPreenchida avaliacaoPreenchida) {
         EntityManager em = getEntityManager();
         try {
@@ -86,15 +86,15 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
             em.close();
         }
     }
-    
+
     public void deleteByAvaliacaoPreenchida(AvaliacaoPreenchida avaliacaoPreenchida) {
         EntityManager em = getEntityManager();
         try {
             em.getTransaction().begin();
             String jpql = "DELETE FROM RespostaItemAvaliacao r WHERE r.avaliacaoPreenchida = :avaliacaoPreenchida";
             em.createQuery(jpql)
-              .setParameter("avaliacaoPreenchida", avaliacaoPreenchida)
-              .executeUpdate();
+                    .setParameter("avaliacaoPreenchida", avaliacaoPreenchida)
+                    .executeUpdate();
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -106,4 +106,3 @@ public class RespostaItemAvaliacaoDAO extends GenericDAO<RespostaItemAvaliacao, 
         }
     }
 }
-

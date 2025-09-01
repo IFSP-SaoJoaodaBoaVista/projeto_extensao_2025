@@ -6,22 +6,23 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionario, Integer> {
-    
+
     public CompetenciaQuestionarioDAO() {
         super(CompetenciaQuestionario.class);
     }
-    
+
     /**
      * Busca competências específicas de um questionário
+     *
      * @param questionarioId ID do questionário
      * @return Lista de competências do questionário específico
      */
     public List<CompetenciaQuestionario> findByQuestionario(Integer questionarioId) {
         EntityManager em = getEntityManager();
         try {
-            String jpql = "SELECT cq FROM CompetenciaQuestionario cq " +
-                         "WHERE cq.questionario.idQuestionario = :questionarioId " +
-                         "ORDER BY cq.idCompetenciaQuestionario";
+            String jpql = "SELECT cq FROM CompetenciaQuestionario cq "
+                    + "WHERE cq.questionario.idQuestionario = :questionarioId "
+                    + "ORDER BY cq.idCompetenciaQuestionario";
             TypedQuery<CompetenciaQuestionario> query = em.createQuery(jpql, CompetenciaQuestionario.class);
             query.setParameter("questionarioId", questionarioId);
             return query.getResultList();
@@ -31,7 +32,7 @@ public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionar
             em.close();
         }
     }
-    
+
     public List<CompetenciaQuestionario> findByTipoItem(String tipoItem) {
         EntityManager em = getEntityManager();
         try {
@@ -45,7 +46,7 @@ public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionar
             em.close();
         }
     }
-    
+
     public List<CompetenciaQuestionario> findByNomeCompetenciaContaining(String nome) {
         EntityManager em = getEntityManager();
         try {
@@ -59,7 +60,7 @@ public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionar
             em.close();
         }
     }
-    
+
     public boolean existsByNomeCompetencia(String nomeCompetencia) {
         EntityManager em = getEntityManager();
         try {
@@ -74,4 +75,3 @@ public class CompetenciaQuestionarioDAO extends GenericDAO<CompetenciaQuestionar
         }
     }
 }
-

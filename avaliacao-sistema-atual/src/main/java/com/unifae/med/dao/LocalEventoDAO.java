@@ -6,11 +6,11 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class LocalEventoDAO extends GenericDAO<LocalEvento, Integer> {
-    
+
     public LocalEventoDAO() {
         super(LocalEvento.class);
     }
-    
+
     /**
      * Busca todos os locais de eventos ordenados por nome
      */
@@ -27,7 +27,7 @@ public class LocalEventoDAO extends GenericDAO<LocalEvento, Integer> {
             em.close();
         }
     }
-    
+
     /**
      * Busca locais por tipo
      */
@@ -44,7 +44,7 @@ public class LocalEventoDAO extends GenericDAO<LocalEvento, Integer> {
             em.close();
         }
     }
-    
+
     /**
      * Busca locais por cidade
      */
@@ -61,7 +61,7 @@ public class LocalEventoDAO extends GenericDAO<LocalEvento, Integer> {
             em.close();
         }
     }
-    
+
     /**
      * Busca locais por nome (busca parcial)
      */
@@ -79,4 +79,3 @@ public class LocalEventoDAO extends GenericDAO<LocalEvento, Integer> {
         }
     }
 }
-

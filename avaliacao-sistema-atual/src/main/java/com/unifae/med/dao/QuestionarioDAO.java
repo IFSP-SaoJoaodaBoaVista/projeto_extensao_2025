@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class QuestionarioDAO extends GenericDAO<Questionario, Integer> {
-    
+
     public QuestionarioDAO() {
         super(Questionario.class);
     }
-    
+
     public Optional<Questionario> findByNomeModelo(String nomeModelo) {
         EntityManager em = getEntityManager();
         try {
@@ -29,7 +29,7 @@ public class QuestionarioDAO extends GenericDAO<Questionario, Integer> {
             em.close();
         }
     }
-    
+
     public List<Questionario> findByNomeModeloContaining(String nome) {
         EntityManager em = getEntityManager();
         try {
@@ -43,7 +43,7 @@ public class QuestionarioDAO extends GenericDAO<Questionario, Integer> {
             em.close();
         }
     }
-    
+
     public boolean existsByNomeModelo(String nomeModelo) {
         EntityManager em = getEntityManager();
         try {
@@ -58,4 +58,3 @@ public class QuestionarioDAO extends GenericDAO<Questionario, Integer> {
         }
     }
 }
-
