@@ -1,9 +1,12 @@
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\AvaliacaoPreenchidaDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\CompetenciaQuestionarioDAO.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\DisciplinaDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\GenericDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\LocalEventoDAO.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\PermissaoDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\QuestionarioDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\RespostaItemAvaliacaoDAO.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\TurmaDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\dao\UsuarioDAO.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\entity\AvaliacaoPreenchida.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\entity\CompetenciaQuestionario.java
@@ -15,6 +18,10 @@ C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\entity\TipoUsuario.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\entity\Turma.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\entity\Usuario.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\admin\DisciplinaServlet.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\admin\PermissaoServlet.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\admin\TurmaServlet.java
+C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\admin\UsuarioServlet.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\AvaliacaoDeleteServlet.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\AvaliacaoFormServlet.java
 C:\Users\ratec\Meu Drive\projeto_extensao_2025\avaliacao-sistema-atual\src\main\java\com\unifae\med\servlet\AvaliacaoListServlet.java
