@@ -1,3 +1,4 @@
+com\unifae\med\entity\TipoEvento.class
 com\unifae\med\servlet\admin\UsuarioServlet.class
 com\unifae\med\entity\Disciplina.class
 com\unifae\med\servlet\admin\TurmaServlet.class
@@ -5,10 +6,13 @@ com\unifae\med\entity\RespostaItemAvaliacao.class
 com\unifae\med\dao\GenericDAO.class
 com\unifae\med\entity\Permissao.class
 com\unifae\med\dao\TurmaDAO.class
+com\unifae\med\dao\EventoAgendaDAO.class
 com\unifae\med\servlet\AvaliacaoFormServlet.class
 com\unifae\med\entity\TipoUsuario.class
 com\unifae\med\servlet\AvaliacaoDeleteServlet.class
+com\unifae\med\entity\StatusEvento.class
 com\unifae\med\servlet\TestServlet.class
+com\unifae\med\servlet\AgendaServlet.class
 com\unifae\med\dao\RespostaItemAvaliacaoDAO.class
 com\unifae\med\servlet\admin\PermissaoServlet.class
 com\unifae\med\dao\AvaliacaoPreenchidaDAO.class
@@ -26,5 +30,6 @@ com\unifae\med\dao\LocalEventoDAO.class
 com\unifae\med\entity\Usuario.class
 com\unifae\med\dao\PermissaoDAO.class
 com\unifae\med\dao\CompetenciaQuestionarioDAO.class
+com\unifae\med\entity\EventoAgenda.class
 com\unifae\med\entity\Questionario.class
 com\unifae\med\servlet\AvaliacaoViewServlet.class

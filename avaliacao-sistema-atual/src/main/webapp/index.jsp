@@ -288,6 +288,9 @@
             
             <%-- Link para listagem de avaliações --%>
             <a href="avaliacoes">📋 Lista de Avaliações</a>
+            
+            <%-- Link para exibição da agenda --%>
+            <a href="${pageContext.request.contextPath}/agenda" class="btn">📅 Agenda</a>
 
             <%--
                 MENU DROPDOWN PARA NOVA AVALIAÇÃO
@@ -309,7 +312,7 @@
                     <a href="avaliacao/form?action=new&questionarioId=2">🎯 Avaliação 360 - Professor</a>
                     <a href="avaliacao/form?action=new&questionarioId=3">👥 Avaliação 360 - Pares</a>
                     <a href="avaliacao/form?action=new&questionarioId=4">⚕️ Avaliação 360 - Equipe</a>
-                    <a href="avaliacao/form?action=new&questionarioId=5">🩺 Avaliação 360 - Paciente</a>
+                    <a href="avaliacao/form?action=new&questionarioId=5">🩺 Avaliação 360 - Paciente</a>                    
                 </div>
             </div>
         </div>

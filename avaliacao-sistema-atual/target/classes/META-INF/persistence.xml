@@ -69,6 +69,9 @@
         <class>com.unifae.med.entity.Turma</class>
         <class>com.unifae.med.entity.Disciplina</class>
         <class>com.unifae.med.entity.LocalEvento</class>
+        <class>com.unifae.med.entity.EventoAgenda</class>
+        <class>com.unifae.med.entity.TipoEvento</class>
+        <class>com.unifae.med.entity.StatusEvento</class>
         
         <properties>
             <!-- 

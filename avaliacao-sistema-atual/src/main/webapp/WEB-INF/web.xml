@@ -203,7 +203,7 @@
         <servlet-name>default</servlet-name>
         <url-pattern>*.gif</url-pattern>      <!-- Todos os arquivos .gif -->
     </servlet-mapping>
-    
+           
     <!--
         OBSERVAÇÕES IMPORTANTES
         =======================
