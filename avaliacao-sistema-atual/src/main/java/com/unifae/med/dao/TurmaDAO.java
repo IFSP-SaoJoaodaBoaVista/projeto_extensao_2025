@@ -2,63 +2,97 @@ package com.unifae.med.dao;
 
 import com.unifae.med.entity.Turma;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import java.util.List;
-import java.util.Optional;
 
-/**
- * TURMADAO - DATA ACCESS OBJECT PARA A ENTIDADE TURMA
- * ===================================================
- * * Especializa o GenericDAO para a entidade Turma.
- * Implementa consultas específicas para buscar turmas por nome, código ou ano letivo.
- * * @author Sistema de Avaliação UNIFAE
- * @version 1.0
- */
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TurmaDAO extends GenericDAO<Turma, Integer> {
 
-    /**
-     * Construtor padrão que define a classe da entidade para o GenericDAO.
-     */
     public TurmaDAO() {
         super(Turma.class);
     }
 
     /**
-     * Busca turmas cujo nome contenha o termo pesquisado.
-     * A busca é case-insensitive.
+     * Busca turmas com filtros dinâmicos de texto e status, e também retorna
+     * estatísticas. Necessário para popular a nova listagem padronizada.
      *
-     * @param nomeTurma Parte do nome da turma a ser buscada.
-     * @return Uma lista de turmas que correspondem ao critério.
+     * @param search Termo de busca para nome ou código.
+     * @param status Filtro de status ("ativo" ou "inativo").
+     * @return Um Map contendo a lista de turmas ("list") e as estatísticas
+     * ("stats").
      */
-    public List<Turma> findByNomeContaining(String nomeTurma) {
+    public Map<String, Object> findWithFiltersAndStats(String search, String status) {
         EntityManager em = getEntityManager();
         try {
-            String jpql = "SELECT t FROM Turma t WHERE LOWER(t.nomeTurma) LIKE LOWER(:nomeTurma) ORDER BY t.nomeTurma";
-            TypedQuery<Turma> query = em.createQuery(jpql, Turma.class);
-            query.setParameter("nomeTurma", "%" + nomeTurma + "%");
-            return query.getResultList();
+            // 1. Consulta principal para a lista filtrada
+            StringBuilder jpql = new StringBuilder("SELECT t FROM Turma t WHERE 1=1");
+            Map<String, Object> parameters = new HashMap<>();
+
+            if (search != null && !search.trim().isEmpty()) {
+                jpql.append(" AND (LOWER(t.nomeTurma) LIKE LOWER(:search) OR LOWER(t.codigoTurma) LIKE LOWER(:search))");
+                parameters.put("search", "%" + search + "%");
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                if ("ativo".equalsIgnoreCase(status)) {
+                    jpql.append(" AND t.ativo = :status");
+                    parameters.put("status", true);
+                } else if ("inativo".equalsIgnoreCase(status)) {
+                    jpql.append(" AND t.ativo = :status");
+                    parameters.put("status", false);
+                }
+            }
+            jpql.append(" ORDER BY t.anoLetivo DESC, t.nomeTurma");
+
+            TypedQuery<Turma> query = em.createQuery(jpql.toString(), Turma.class);
+            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            List<Turma> list = query.getResultList();
+
+            // 2. Consultas para estatísticas
+            Long totalTurmas = em.createQuery("SELECT COUNT(t) FROM Turma t", Long.class).getSingleResult();
+            Long turmasAtivas = em.createQuery("SELECT COUNT(t) FROM Turma t WHERE t.ativo = true", Long.class).getSingleResult();
+
+            Map<String, Long> stats = new HashMap<>();
+            stats.put("totalTurmas", totalTurmas);
+            stats.put("turmasAtivas", turmasAtivas);
+
+            // 3. Monta o resultado final
+            Map<String, Object> result = new HashMap<>();
+            result.put("list", list);
+            result.put("stats", stats);
+
+            return result;
         } finally {
             em.close();
         }
     }
 
     /**
-     * Busca uma turma pelo seu código exato.
-     * O código da turma é um identificador único.
+     * <<< MÉTODO RESTAURADO >>> Busca todas as turmas que estão ativas. Útil
+     * para popular formulários (como o de Notas) apenas com opções relevantes.
      *
-     * @param codigoTurma O código exato da turma.
-     * @return Um Optional contendo a turma se encontrada.
+     * @return Uma lista de turmas ativas.
      */
-    public Optional<Turma> findByCodigo(String codigoTurma) {
+    public List<Turma> findAtivas() {
         EntityManager em = getEntityManager();
         try {
-            String jpql = "SELECT t FROM Turma t WHERE t.codigoTurma = :codigoTurma";
+            String jpql = "SELECT t FROM Turma t WHERE t.ativo = true ORDER BY t.anoLetivo DESC, t.nomeTurma";
             TypedQuery<Turma> query = em.createQuery(jpql, Turma.class);
-            query.setParameter("codigoTurma", codigoTurma);
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<Turma> findAll() {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT t FROM Turma t ORDER BY t.anoLetivo DESC, t.nomeTurma", Turma.class).getResultList();
         } finally {
             em.close();
         }

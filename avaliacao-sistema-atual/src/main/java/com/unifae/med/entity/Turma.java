@@ -3,6 +3,7 @@ package com.unifae.med.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+// <<< MUDANÇA: Removido import java.time.Year >>>
 
 @Entity
 @Table(name = "turmas")
@@ -22,13 +23,18 @@ public class Turma {
     @Column(name = "codigo_turma", unique = true, length = 50)
     private String codigoTurma;
 
+    // <<< MUDANÇA: Voltamos a usar Integer para máxima compatibilidade >>>
+    @Column(name = "ano_letivo", nullable = false)
+    private Integer anoLetivo;
+
+    @Column(name = "semestre", nullable = false)
+    private Integer semestre;
+
+    @Column(name = "ativo", nullable = false)
+    private Boolean ativo = true;
+
     // Construtores
     public Turma() {
-    }
-
-    public Turma(String nomeTurma, String codigoTurma) {
-        this.nomeTurma = nomeTurma;
-        this.codigoTurma = codigoTurma;
     }
 
     // Getters e Setters
@@ -56,12 +62,39 @@ public class Turma {
         this.codigoTurma = codigoTurma;
     }
 
+    // <<< MUDANÇA: Getters e Setters para Integer >>>
+    public Integer getAnoLetivo() {
+        return anoLetivo;
+    }
+
+    public void setAnoLetivo(Integer anoLetivo) {
+        this.anoLetivo = anoLetivo;
+    }
+
+    public Integer getSemestre() {
+        return semestre;
+    }
+
+    public void setSemestre(Integer semestre) {
+        this.semestre = semestre;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
     @Override
     public String toString() {
         return "Turma{"
                 + "idTurma=" + idTurma
                 + ", nomeTurma='" + nomeTurma + '\''
-                + ", codigoTurma='" + codigoTurma + '\''
+                + ", anoLetivo=" + anoLetivo
+                + ", semestre=" + semestre
+                + ", ativo=" + ativo
                 + '}';
     }
 }

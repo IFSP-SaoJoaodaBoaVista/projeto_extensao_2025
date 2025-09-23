@@ -25,10 +25,29 @@ CREATE TABLE `participantes_eventos` (`id_participante_evento` int(11) NOT NULL,
 CREATE TABLE `permissoes` (`id_permissao` int(11) NOT NULL,`nome_permissao` varchar(100) NOT NULL,`descricao` text DEFAULT NULL,`ativo` tinyint(1) DEFAULT 1,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),`descricao_permissao` text DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `questionarios` (`id_questionario` int(11) NOT NULL,`nome_modelo` varchar(255) NOT NULL,`descricao` text DEFAULT NULL,`tipo_avaliacao` enum('MINI_CEX','AVALIACAO_360_PROFESSOR','AVALIACAO_360_PARES','AVALIACAO_360_EQUIPE','AVALIACAO_360_PACIENTE') NOT NULL,`ativo` tinyint(1) DEFAULT 1,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `respostas_itens_avaliacao` (`id_resposta_avaliacao` int(11) NOT NULL,`id_avaliacao_preenchida` int(11) NOT NULL,`id_competencia_questionario` int(11) NOT NULL,`resposta_valor_numerico` decimal(4,1) DEFAULT NULL,`resposta_texto` text DEFAULT NULL,`resposta_multipla_escolha` varchar(255) DEFAULT NULL,`nao_avaliado` tinyint(1) DEFAULT 0,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE TABLE `turmas` (`id_turma` int(11) NOT NULL,`nome_turma` varchar(255) NOT NULL,`ano_letivo` year(4) NOT NULL,`semestre` tinyint(4) NOT NULL CHECK (`semestre` in (1,2)),`data_inicio` date DEFAULT NULL,`data_fim` date DEFAULT NULL,`ativo` tinyint(1) DEFAULT 1,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),`codigo_turma` varchar(50) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `turmas` (`id_turma` int(11) NOT NULL,`nome_turma` varchar(255) NOT NULL,`ano_letivo` int(4) NOT NULL,`semestre` int(11) NOT NULL CHECK (`semestre` in (1,2)),`data_inicio` date DEFAULT NULL,`data_fim` date DEFAULT NULL,`ativo` tinyint(1) DEFAULT 1,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),`codigo_turma` varchar(50) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `usuarios` (`id_usuario` int(11) NOT NULL,`nome_completo` varchar(255) NOT NULL,`email` varchar(255) NOT NULL,`senha_hash` varchar(255) NOT NULL,`tipo_usuario` enum('ESTUDANTE','PROFESSOR','COORDENADOR','ADMINISTRADOR') NOT NULL,`matricula_RA` varchar(50) DEFAULT NULL,`telefone` varchar(20) DEFAULT NULL,`foto_perfil_path` varchar(500) DEFAULT NULL,`ativo` tinyint(1) DEFAULT 1,`periodo_atual_aluno` varchar(2) DEFAULT NULL,`observacoes_gerais_aluno` text DEFAULT NULL,`id_permissao` int(11) DEFAULT NULL,`data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),`data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `usuarios_permissoes` (`id_usuario_permissao` int(11) NOT NULL,`id_usuario` int(11) NOT NULL,`id_permissao` int(11) NOT NULL,`data_atribuicao` timestamp NOT NULL DEFAULT current_timestamp()) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `usuarios_turmas` (`id_usuario_turma` int(11) NOT NULL,`id_usuario` int(11) NOT NULL,`id_turma` int(11) NOT NULL,`papel` enum('ESTUDANTE','PROFESSOR','MONITOR') NOT NULL,`data_vinculacao` timestamp NOT NULL DEFAULT current_timestamp(),`ativo` tinyint(1) DEFAULT 1) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `notas` (
+  `id_nota` int(11) NOT NULL AUTO_INCREMENT,
+  `id_aluno` int(11) NOT NULL,
+  `id_disciplina` int(11) NOT NULL,
+  `id_turma` int(11) DEFAULT NULL,
+  `id_professor` int(11) DEFAULT NULL,
+  `valor_nota` decimal(4,2) NOT NULL,
+  `peso_nota` decimal(4,2) DEFAULT 1.00,
+  `tipo_avaliacao` enum('PROVA','TRABALHO','SEMINARIO','PRATICA','PARTICIPACAO','PROJETO','ESTAGIO','OUTROS') NOT NULL,
+  `descricao_avaliacao` varchar(500) DEFAULT NULL,
+  `data_avaliacao` date NOT NULL,
+  `data_lancamento` date NOT NULL DEFAULT (curdate()),
+  `observacoes` text DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),
+  `data_atualizacao` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_nota`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 -- ETAPA 3: INSERÇÃO DOS DADOS
@@ -50,6 +69,38 @@ INSERT INTO `avaliacoes_preenchidas` (`id_avaliacao_preenchida`, `id_questionari
 INSERT INTO `participantes_eventos` (`id_participante_evento`, `id_evento`, `id_usuario`, `papel_participante`, `confirmado`) VALUES (1, 1, 5, 'ORGANIZADOR', 1),(2, 1, 11, 'PARTICIPANTE', 1),(3, 1, 12, 'PARTICIPANTE', 1),(4, 1, 13, 'PARTICIPANTE', 1),(5, 1, 14, 'PARTICIPANTE', 1),(6, 1, 15, 'PARTICIPANTE', 1),(7, 2, 9, 'ORGANIZADOR', 1),(8, 2, 21, 'PARTICIPANTE', 1),(9, 2, 22, 'PARTICIPANTE', 1),(10, 2, 23, 'PARTICIPANTE', 1),(11, 3, 5, 'ORGANIZADOR', 1),(12, 3, 6, 'ORGANIZADOR', 1),(13, 3, 11, 'PARTICIPANTE', 1),(14, 3, 12, 'PARTICIPANTE', 1),(15, 3, 13, 'PARTICIPANTE', 1),(16, 3, 14, 'PARTICIPANTE', 1),(17, 3, 15, 'PARTICIPANTE', 1),(18, 4, 3, 'ORGANIZADOR', 1),(19, 4, 4, 'PARTICIPANTE', 1),(20, 4, 5, 'PARTICIPANTE', 1),(21, 4, 6, 'PARTICIPANTE', 1),(22, 4, 7, 'PARTICIPANTE', 1),(23, 4, 8, 'PARTICIPANTE', 1),(24, 5, 9, 'ORGANIZADOR', 1),(25, 5, 10, 'ORGANIZADOR', 1),(26, 5, 21, 'PARTICIPANTE', 1),(27, 5, 22, 'PARTICIPANTE', 1),(28, 5, 23, 'PARTICIPANTE', 1),(29, 6, 10, 'ORGANIZADOR', 1),(30, 6, 11, 'PARTICIPANTE', 0),(31, 6, 12, 'PARTICIPANTE', 0),(32, 6, 13, 'PARTICIPANTE', 0),(33, 6, 14, 'PARTICIPANTE', 0),(34, 6, 15, 'PARTICIPANTE', 0),(35, 6, 21, 'PARTICIPANTE', 0),(36, 6, 22, 'PARTICIPANTE', 0),(37, 6, 23, 'PARTICIPANTE', 0),(38, 6, 26, 'PARTICIPANTE', 0),(39, 6, 27, 'PARTICIPANTE', 0),(40, 6, 28, 'PARTICIPANTE', 0);
 INSERT INTO `respostas_itens_avaliacao` (`id_resposta_avaliacao`, `id_avaliacao_preenchida`, `id_competencia_questionario`, `resposta_valor_numerico`) VALUES (1, 1, 1, 7.0),(2, 1, 2, 6.0),(3, 1, 3, 8.0),(4, 1, 4, 7.0),(5, 1, 5, 8.0),(6, 1, 6, 5.0),(7, 1, 7, 7.0),(8, 2, 1, 8.0),(9, 2, 2, 7.0),(10, 2, 3, 7.0),(11, 2, 4, 6.0),(12, 2, 5, 7.0),(13, 2, 6, 5.0),(14, 2, 7, 7.0),(15, 3, 1, 6.0),(16, 3, 2, 7.0),(17, 3, 3, 8.0),(18, 3, 4, 8.0),(19, 3, 5, 6.0),(20, 3, 6, 7.0),(21, 3, 7, 7.0),(22, 4, 8, 7.0),(23, 4, 9, 7.0),(24, 4, 10, 8.0),(25, 4, 11, 6.0),(26, 4, 12, 8.0),(27, 4, 13, 8.0),(28, 4, 14, 7.0),(29, 5, 8, 8.0),(30, 5, 9, 7.0),(31, 5, 10, 9.0),(32, 5, 11, 6.0),(33, 5, 12, 9.0),(34, 5, 13, 7.0),(35, 5, 14, 8.0),(36, 6, 15, 7.0),(37, 6, 16, 6.0),(38, 6, 17, 7.0),(39, 6, 18, 8.0),(40, 6, 19, 8.0),(41, 6, 20, 6.0),(42, 6, 21, 7.0),(43, 6, 22, 8.0),(44, 6, 23, 8.0),(45, 6, 24, 9.0),(46, 7, 15, 8.0),(47, 7, 16, 7.0),(48, 7, 17, 8.0),(49, 7, 18, 7.0),(50, 7, 19, 7.0),(51, 7, 20, 6.0),(52, 7, 21, 8.0),(53, 7, 22, 7.0),(54, 7, 23, 7.0),(55, 7, 24, 7.0),(56, 11, 15, 7.0),(57, 11, 16, 6.0),(58, 11, 17, 7.0),(59, 11, 18, 8.0),(60, 11, 19, 9.0),(61, 11, 20, 6.0),(62, 11, 21, 7.0),(63, 11, 22, 8.0),(64, 11, 23, 8.0),(65, 11, 24, 8.0),(66, 12, 15, 8.0),(67, 12, 16, 7.0),(68, 12, 17, 8.0),(69, 12, 18, 7.0),(70, 12, 19, 7.0),(71, 12, 20, 6.0),(72, 12, 21, 8.0),(73, 12, 22, 7.0),(74, 12, 23, 7.0),(75, 12, 24, 7.0),(76, 13, 15, 7.0),(77, 13, 16, 6.0),(78, 13, 17, 7.0),(79, 13, 18, 8.0),(80, 13, 19, 9.0),(81, 13, 20, 6.0),(82, 13, 21, 7.0),(83, 13, 22, 8.0),(84, 13, 23, 8.0),(85, 13, 24, 9.0),(86, 14, 8, 8.0),(87, 14, 9, 7.0),(88, 14, 10, 9.0),(89, 14, 11, 6.0),(90, 14, 12, 9.0),(91, 14, 13, 7.0),(92, 14, 14, 8.0),(103, 19, 35, 1.0),(104, 19, 36, 5.0),(105, 19, 37, 3.0),(106, 19, 38, 2.0),(107, 19, 39, 9.0),(108, 19, 40, 8.0),(109, 19, 41, 6.0),(110, 19, 42, 7.0),(111, 19, 43, 4.0),(112, 19, 44, 3.0),(123, 23, 25, 1.0),(124, 23, 26, 2.0),(125, 23, 27, 3.0),(126, 23, 28, 4.0),(127, 23, 29, 5.0),(128, 23, 30, 6.0),(129, 23, 31, 7.0),(130, 23, 32, 8.0),(131, 23, 33, 9.0),(132, 23, 34, 5.0),(133, 24, 25, 1.0),(134, 24, 26, 1.0),(135, 24, 27, 1.0),(136, 24, 28, 2.0),(137, 24, 29, 2.0),(138, 24, 30, 2.0),(139, 24, 31, 5.0),(140, 24, 32, 5.0),(141, 24, 33, 5.0),(142, 24, 34, 8.0),(153, 15, 15, 1.0),(154, 15, 16, 2.0),(155, 15, 17, 3.0),(156, 15, 18, 4.0),(157, 15, 19, 5.0),(158, 15, 20, 6.0),(159, 15, 21, 4.0),(160, 15, 22, 3.0),(161, 15, 23, 2.0),(162, 15, 24, 1.0),(163, 25, 35, 1.0),(164, 25, 36, 4.0),(165, 25, 37, 3.0),(166, 25, 38, 2.0),(167, 25, 39, 5.0),(168, 25, 40, 5.0),(169, 25, 41, 5.0),(170, 25, 42, 5.0),(171, 25, 43, 3.0),(172, 25, 44, 6.0),(193, 26, 25, 1.0),(194, 26, 26, 1.0),(195, 26, 27, 5.0),(196, 26, 28, 4.0),(197, 26, 29, 5.0),(198, 26, 30, 4.0),(199, 26, 31, 5.0),(200, 26, 32, 4.0),(201, 26, 33, 5.0),(202, 26, 34, 4.0),(210, 27, 8, 1.0),(211, 27, 9, 9.0),(212, 27, 10, 8.0),(213, 27, 11, 7.0),(214, 27, 12, 5.0),(215, 27, 13, 6.0),(216, 27, 14, 7.0),(217, 29, 8, 9.0),(218, 29, 9, 8.0),(219, 29, 10, 8.0),(220, 29, 11, 7.0),(221, 29, 12, 7.0),(222, 29, 13, 6.0),(223, 29, 14, 6.0),(224, 30, 15, 1.0),(225, 30, 16, 2.0),(226, 30, 17, 3.0),(227, 30, 18, 4.0),(228, 30, 19, 5.0),(229, 30, 20, 6.0),(230, 30, 21, 7.0),(231, 30, 22, 8.0),(232, 30, 23, 9.0),(233, 30, 24, 7.0),(244, 31, 25, 6.0),(245, 31, 26, 6.0),(246, 31, 27, 6.0),(247, 31, 28, 4.0),(248, 31, 29, 4.0),(249, 31, 30, 5.0),(250, 31, 31, 5.0),(251, 31, 32, 6.0),(252, 31, 33, 6.0),(253, 31, 34, 7.0),(261, 34, 1, 9.0),(262, 34, 2, 9.0),(263, 34, 3, 4.0),(264, 34, 4, 5.0),(265, 34, 5, 6.0),(266, 34, 6, 7.0),(267, 34, 7, 8.0),(268, 35, 8, 1.0),(269, 35, 9, 1.0),(270, 35, 10, 1.0),(271, 35, 11, 2.0),(272, 35, 12, 2.0),(273, 35, 13, 2.0),(274, 35, 14, 3.0),(285, 36, 15, 3.0),(286, 36, 16, 2.0),(287, 36, 17, 3.0),(288, 36, 18, 4.0),(289, 36, 19, 5.0),(290, 36, 20, 6.0),(291, 36, 21, 7.0),(292, 36, 22, 6.0),(293, 36, 23, 5.0),(294, 36, 24, 4.0),(305, 37, 25, 1.0),(306, 37, 26, 1.0),(307, 37, 27, 1.0),(308, 37, 28, 1.0),(309, 37, 29, 2.0),(310, 37, 30, 2.0),(311, 37, 31, 2.0),(312, 37, 32, 5.0),(313, 37, 33, 5.0),(314, 37, 34, 5.0),(325, 38, 35, 9.0),(326, 38, 36, 3.0),(327, 38, 37, 2.0),(328, 38, 38, 2.0),(329, 38, 39, 6.0),(330, 38, 40, 5.0),(331, 38, 41, 4.0),(332, 38, 42, 5.0),(333, 38, 43, 3.0),(334, 38, 44, 7.0),(356, 39, 1, 6.0),(357, 39, 2, 4.0),(358, 39, 3, 5.0),(359, 39, 4, 6.0),(360, 39, 5, 5.0),(361, 39, 6, 4.0),(362, 39, 7, 9.0),(363, 40, 1, 2.0),(364, 40, 2, 3.0),(365, 40, 3, 6.0),(366, 40, 4, 8.0),(367, 40, 5, 9.0),(368, 40, 6, 9.0),(369, 40, 7, 9.0),(380, 41, 25, 6.0),(381, 41, 26, 5.0),(382, 41, 27, 6.0),(383, 41, 28, 9.0),(384, 41, 29, 6.0),(385, 41, 30, 7.0),(386, 41, 31, 7.0),(387, 41, 32, 6.0),(388, 41, 33, 8.0),(389, 41, 34, 9.0),(400, 42, 35, 8.0),(401, 42, 36, 8.0),(402, 42, 37, 7.0),(403, 42, 38, 7.0),(404, 42, 39, 8.0),(405, 42, 40, 7.0),(406, 42, 41, 7.0),(407, 42, 42, 6.0),(408, 42, 43, 7.0),(409, 42, 44, 5.0);
 INSERT INTO `usuarios_permissoes` (`id_usuario_permissao`, `id_usuario`, `id_permissao`, `data_atribuicao`) VALUES (1, 1, 1, '2025-08-26 22:30:05'),(2, 1, 2, '2025-08-26 22:30:05'),(3, 1, 3, '2025-08-26 22:30:05'),(4, 1, 4, '2025-08-26 22:30:05'),(5, 1, 5, '2025-08-26 22:30:05'),(6, 1, 6, '2025-08-26 22:30:05'),(7, 1, 7, '2025-08-26 22:30:05'),(8, 1, 8, '2025-08-26 22:30:05'),(9, 1, 9, '2025-08-26 22:30:05'),(10, 1, 10, '2025-08-26 22:30:05'),(11, 1, 11, '2025-08-26 22:30:05'),(12, 1, 12, '2025-08-26 22:30:05'),(13, 2, 1, '2025-08-26 22:30:05'),(14, 2, 2, '2025-08-26 22:30:05'),(15, 2, 3, '2025-08-26 22:30:05'),(16, 2, 4, '2025-08-26 22:30:05'),(17, 2, 5, '2025-08-26 22:30:05'),(18, 2, 6, '2025-08-26 22:30:05'),(19, 2, 7, '2025-08-26 22:30:05'),(20, 2, 8, '2025-08-26 22:30:05'),(21, 2, 9, '2025-08-26 22:30:05'),(22, 2, 10, '2025-08-26 22:30:05'),(23, 2, 11, '2025-08-26 22:30:05'),(24, 2, 12, '2025-08-26 22:30:05'),(25, 31, 1, '2025-08-26 22:30:05'),(26, 31, 2, '2025-08-26 22:30:05'),(27, 31, 3, '2025-08-26 22:30:05'),(28, 31, 4, '2025-08-26 22:30:05'),(29, 31, 5, '2025-08-26 22:30:05'),(30, 31, 6, '2025-08-26 22:30:05'),(31, 31, 7, '2025-08-26 22:30:05'),(32, 31, 8, '2025-08-26 22:30:05'),(33, 31, 9, '2025-08-26 22:30:05'),(34, 31, 10, '2025-08-26 22:30:05'),(35, 31, 11, '2025-08-26 22:30:05'),(36, 31, 12, '2025-08-26 22:30:05'),(37, 3, 2, '2025-08-26 22:30:05'),(38, 3, 3, '2025-08-26 22:30:05'),(39, 3, 4, '2025-08-26 22:30:05'),(40, 3, 5, '2025-08-26 22:30:05'),(41, 3, 6, '2025-08-26 22:30:05'),(42, 3, 7, '2025-08-26 22:30:05'),(43, 3, 8, '2025-08-26 22:30:05'),(44, 3, 9, '2025-08-26 22:30:05'),(45, 3, 10, '2025-08-26 22:30:05'),(46, 3, 11, '2025-08-26 22:30:05'),(47, 4, 2, '2025-08-26 22:30:05'),(48, 4, 3, '2025-08-26 22:30:05'),(49, 4, 4, '2025-08-26 22:30:05'),(50, 4, 5, '2025-08-26 22:30:05'),(51, 4, 6, '2025-08-26 22:30:05'),(52, 4, 7, '2025-08-26 22:30:05'),(53, 4, 8, '2025-08-26 22:30:05'),(54, 4, 9, '2025-08-26 22:30:05'),(55, 4, 10, '2025-08-26 22:30:05'),(56, 4, 11, '2025-08-26 22:30:05'),(57, 5, 5, '2025-08-26 22:30:05'),(58, 5, 6, '2025-08-26 22:30:05'),(59, 5, 7, '2025-08-26 22:30:05'),(60, 5, 10, '2025-08-26 22:30:05'),(61, 5, 11, '2025-08-26 22:30:05'),(62, 6, 5, '2025-08-26 22:30:05'),(63, 6, 6, '2025-08-26 22:30:05'),(64, 6, 7, '2025-08-26 22:30:05'),(65, 6, 10, '2025-08-26 22:30:05'),(66, 6, 11, '2025-08-26 22:30:05'),(67, 7, 5, '2025-08-26 22:30:05'),(68, 7, 6, '2025-08-26 22:30:05'),(69, 7, 7, '2025-08-26 22:30:05'),(70, 7, 10, '2025-08-26 22:30:05'),(71, 7, 11, '2025-08-26 22:30:05'),(72, 8, 5, '2025-08-26 22:30:05'),(73, 8, 6, '2025-08-26 22:30:05'),(74, 8, 7, '2025-08-26 22:30:05'),(75, 8, 10, '2025-08-26 22:30:05'),(76, 8, 11, '2025-08-26 22:30:05'),(77, 9, 5, '2025-08-26 22:30:05'),(78, 9, 6, '2025-08-26 22:30:05'),(79, 9, 7, '2025-08-26 22:30:05'),(80, 9, 10, '2025-08-26 22:30:05'),(81, 9, 11, '2025-08-26 22:30:05'),(82, 10, 5, '2025-08-26 22:30:05'),(83, 10, 6, '2025-08-26 22:30:05'),(84, 10, 7, '2025-08-26 22:30:05'),(85, 10, 10, '2025-08-26 22:30:05'),(86, 10, 11, '2025-08-26 22:30:05'),(87, 11, 7, '2025-08-26 22:30:05'),(88, 11, 10, '2025-08-26 22:30:05'),(89, 11, 12, '2025-08-26 22:30:05'),(90, 12, 7, '2025-08-26 22:30:05'),(91, 12, 10, '2025-08-26 22:30:05'),(92, 12, 12, '2025-08-26 22:30:05'),(93, 13, 7, '2025-08-26 22:30:05'),(94, 13, 10, '2025-08-26 22:30:05'),(95, 13, 12, '2025-08-26 22:30:05'),(96, 14, 7, '2025-08-26 22:30:05'),(97, 14, 10, '2025-08-26 22:30:05'),(98, 14, 12, '2025-08-26 22:30:05'),(99, 15, 7, '2025-08-26 22:30:05'),(100, 15, 10, '2025-08-26 22:30:05'),(101, 15, 12, '2025-08-26 22:30:05'),(102, 16, 7, '2025-08-26 22:30:05'),(103, 16, 10, '2025-08-26 22:30:05'),(104, 16, 12, '2025-08-26 22:30:05'),(105, 17, 7, '2025-08-26 22:30:05'),(106, 17, 10, '2025-08-26 22:30:05'),(107, 17, 12, '2025-08-26 22:30:05'),(108, 18, 7, '2025-08-26 22:30:05'),(109, 18, 10, '2025-08-26 22:30:05'),(110, 18, 12, '2025-08-26 22:30:05'),(111, 19, 7, '2025-08-26 22:30:05'),(112, 19, 10, '2025-08-26 22:30:05'),(113, 19, 12, '2025-08-26 22:30:05'),(114, 20, 7, '2025-08-26 22:30:05'),(115, 20, 10, '2025-08-26 22:30:05'),(116, 20, 12, '2025-08-26 22:30:05'),(117, 21, 7, '2025-08-26 22:30:05'),(118, 21, 10, '2025-08-26 22:30:05'),(119, 21, 12, '2025-08-26 22:30:05'),(120, 22, 7, '2025-08-26 22:30:05'),(121, 22, 10, '2025-08-26 22:30:05'),(122, 22, 12, '2025-08-26 22:30:05'),(123, 23, 7, '2025-08-26 22:30:05'),(124, 23, 10, '2025-08-26 22:30:05'),(125, 23, 12, '2025-08-26 22:30:05'),(126, 24, 7, '2025-08-26 22:30:05'),(127, 24, 10, '2025-08-26 22:30:05'),(128, 24, 12, '2025-08-26 22:30:05'),(129, 25, 7, '2025-08-26 22:30:05'),(130, 25, 10, '2025-08-26 22:30:05'),(131, 25, 12, '2025-08-26 22:30:05'),(132, 26, 7, '2025-08-26 22:30:05'),(133, 26, 10, '2025-08-26 22:30:05'),(134, 26, 12, '2025-08-26 22:30:05'),(135, 27, 7, '2025-08-26 22:30:05'),(136, 27, 10, '2025-08-26 22:30:05'),(137, 27, 12, '2025-08-26 22:30:05'),(138, 28, 7, '2025-08-26 22:30:05'),(139, 28, 10, '2025-08-26 22:30:05'),(140, 28, 12, '2025-08-26 22:30:05'),(141, 29, 7, '2025-08-26 22:30:05'),(142, 29, 10, '2025-08-26 22:30:05'),(143, 29, 12, '2025-08-26 22:30:05'),(144, 30, 7, '2025-08-26 22:30:05'),(145, 30, 10, '2025-08-26 22:30:05'),(146, 30, 12, '2025-08-26 22:30:05');
+
+-- <<< INÍCIO DA SEÇÃO ADICIONADA DO SCRIPT DE NOTAS >>>
+INSERT INTO `notas` (
+    `id_aluno`, `id_disciplina`, `id_turma`, `id_professor`, `valor_nota`, `peso_nota`, 
+    `tipo_avaliacao`, `descricao_avaliacao`, `data_avaliacao`, `observacoes`
+) VALUES 
+(21, 1, 1, 5, 8.5, 3.0, 'PROVA', 'Prova P1 - Anatomia do Sistema Cardiovascular', '2025-03-15', 'Excelente conhecimento dos conceitos básicos'),
+(21, 2, 1, 6, 7.0, 2.0, 'TRABALHO', 'Trabalho sobre Fisiologia Cardíaca', '2025-03-20', 'Bom desenvolvimento do tema'),
+(21, 1, 1, 5, 9.0, 1.0, 'PARTICIPACAO', 'Participação em aulas práticas', '2025-03-25', 'Participação ativa e questionamentos pertinentes'),
+(22, 1, 1, 5, 7.5, 3.0, 'PROVA', 'Prova P1 - Anatomia do Sistema Cardiovascular', '2025-03-15', 'Bom desempenho, alguns conceitos a revisar'),
+(22, 2, 1, 6, 8.0, 2.0, 'TRABALHO', 'Trabalho sobre Fisiologia Cardíaca', '2025-03-20', 'Trabalho bem estruturado'),
+(22, 3, 1, 7, 6.5, 2.0, 'SEMINARIO', 'Seminário sobre Histologia', '2025-03-22', 'Apresentação clara, pode melhorar a didática'),
+(23, 5, 3, 8, 9.5, 3.0, 'PROVA', 'Prova P1 - Patologia Geral', '2025-03-18', 'Excelente compreensão dos processos patológicos'),
+(23, 6, 3, 9, 8.0, 2.0, 'PRATICA', 'Atividade Prática - Farmacologia', '2025-03-21', 'Boa aplicação dos conhecimentos práticos'),
+(23, 7, 3, 10, 7.5, 2.0, 'TRABALHO', 'Trabalho sobre Microbiologia', '2025-03-23', 'Pesquisa adequada, pode aprofundar mais'),
+(24, 5, 3, 8, 6.0, 3.0, 'PROVA', 'Prova P1 - Patologia Geral', '2025-03-18', 'Aprovado, mas precisa estudar mais os conceitos básicos'),
+(24, 6, 3, 9, 7.0, 2.0, 'PRATICA', 'Atividade Prática - Farmacologia', '2025-03-21', 'Desempenho satisfatório'),
+(25, 8, 5, 11, 8.5, 3.0, 'PROVA', 'Prova P1 - Semiologia Médica', '2025-03-16', 'Boa técnica de exame físico'),
+(25, 9, 5, 12, 9.0, 3.0, 'PRATICA', 'Prática Clínica - Clínica Médica', '2025-03-19', 'Excelente raciocínio clínico'),
+(25, 10, 5, 13, 7.5, 2.0, 'SEMINARIO', 'Seminário - Técnicas Cirúrgicas', '2025-03-24', 'Boa apresentação, demonstrou conhecimento'),
+(26, 8, 5, 11, 7.0, 3.0, 'PROVA', 'Prova P1 - Semiologia Médica', '2025-03-16', 'Aprovado, precisa praticar mais o exame físico'),
+(26, 9, 5, 12, 8.0, 3.0, 'PRATICA', 'Prática Clínica - Clínica Médica', '2025-03-19', 'Bom desempenho na prática'),
+(27, 11, 7, 14, 9.0, 3.0, 'ESTAGIO', 'Estágio em Pediatria', '2025-03-17', 'Excelente relacionamento com pacientes pediátricos'),
+(27, 12, 7, 15, 8.5, 3.0, 'ESTAGIO', 'Estágio em Ginecologia', '2025-03-20', 'Boa evolução durante o estágio'),
+(27, 13, 7, 16, 8.0, 2.0, 'PROJETO', 'Projeto de Medicina Comunitária', '2025-03-25', 'Projeto bem elaborado e executado'),
+(28, 11, 7, 14, 7.5, 3.0, 'ESTAGIO', 'Estágio em Pediatria', '2025-03-17', 'Bom desempenho, pode melhorar a comunicação'),
+(28, 12, 7, 15, 7.0, 3.0, 'ESTAGIO', 'Estágio em Ginecologia', '2025-03-20', 'Desempenho satisfatório'),
+(29, 14, 9, 17, 9.5, 4.0, 'ESTAGIO', 'Internato em Clínica Médica', '2025-03-14', 'Excelente desempenho no internato, pronto para a prática'),
+(29, 15, 9, 18, 9.0, 4.0, 'ESTAGIO', 'Internato em Cirurgia', '2025-03-21', 'Muito bom em procedimentos cirúrgicos'),
+(30, 14, 9, 17, 8.0, 4.0, 'ESTAGIO', 'Internato em Clínica Médica', '2025-03-14', 'Bom desempenho, demonstra maturidade profissional'),
+(30, 15, 9, 18, 8.5, 4.0, 'ESTAGIO', 'Internato em Cirurgia', '2025-03-21', 'Boa evolução técnica');
+-- <<< FIM DA SEÇÃO ADICIONADA DO SCRIPT DE NOTAS >>>
 
 -- --------------------------------------------------------
 -- ETAPA 4: PROCEDIMENTOS, GATILHOS E VIEWS
@@ -119,6 +170,67 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DE
 CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_estatisticas_avaliacoes`  AS SELECT `u`.`id_usuario` AS `id_usuario`, `u`.`nome_completo` AS `nome_completo`, `u`.`tipo_usuario` AS `tipo_usuario`, count(case when `ap`.`id_aluno_avaliado` = `u`.`id_usuario` then 1 end) AS `total_como_avaliado`, count(case when `ap`.`id_avaliador` = `u`.`id_usuario` then 1 end) AS `total_como_avaliador`, count(case when `ap`.`id_aluno_avaliado` = `u`.`id_usuario` and `ap`.`status_avaliacao` = 'FINALIZADA' then 1 end) AS `finalizadas_como_avaliado`, count(case when `ap`.`id_avaliador` = `u`.`id_usuario` and `ap`.`status_avaliacao` = 'FINALIZADA' then 1 end) AS `finalizadas_como_avaliador`, avg(case when `ria`.`id_avaliacao_preenchida` in (select `avaliacoes_preenchidas`.`id_avaliacao_preenchida` from `avaliacoes_preenchidas` where `avaliacoes_preenchidas`.`id_aluno_avaliado` = `u`.`id_usuario`) then `ria`.`resposta_valor_numerico` end) AS `media_notas_recebidas` FROM ((`usuarios` `u` left join `avaliacoes_preenchidas` `ap` on(`u`.`id_usuario` = `ap`.`id_aluno_avaliado` or `u`.`id_usuario` = `ap`.`id_avaliador`)) left join `respostas_itens_avaliacao` `ria` on(`ap`.`id_avaliacao_preenchida` = `ria`.`id_avaliacao_preenchida`)) WHERE `u`.`ativo` = 1 GROUP BY `u`.`id_usuario`, `u`.`nome_completo`, `u`.`tipo_usuario`;
 CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_usuarios_permissoes`  AS SELECT `u`.`id_usuario` AS `id_usuario`, `u`.`nome_completo` AS `nome_completo`, `u`.`email` AS `email`, `u`.`tipo_usuario` AS `tipo_usuario`, `u`.`ativo` AS `usuario_ativo`, group_concat(`p`.`nome_permissao` separator ', ') AS `permissoes` FROM ((`usuarios` `u` left join `usuarios_permissoes` `up` on(`u`.`id_usuario` = `up`.`id_usuario`)) left join `permissoes` `p` on(`up`.`id_permissao` = `p`.`id_permissao` and `p`.`ativo` = 1)) WHERE `u`.`ativo` = 1 GROUP BY `u`.`id_usuario`, `u`.`nome_completo`, `u`.`email`, `u`.`tipo_usuario`, `u`.`ativo`;
 
+-- <<< INÍCIO DA SEÇÃO ADICIONADA DO SCRIPT DE NOTAS >>>
+CREATE OR REPLACE VIEW `view_medias_aluno_disciplina` AS
+SELECT 
+    n.id_aluno,
+    u.nome_completo AS nome_aluno,
+    u.matricula_RA,
+    n.id_disciplina,
+    d.nome_disciplina,
+    d.codigo_disciplina,
+    COUNT(n.id_nota) AS total_notas,
+    ROUND(SUM(n.valor_nota * n.peso_nota) / SUM(n.peso_nota), 2) AS media_ponderada,
+    ROUND(AVG(n.valor_nota), 2) AS media_simples,
+    MIN(n.valor_nota) AS nota_minima,
+    MAX(n.valor_nota) AS nota_maxima,
+    CASE 
+        WHEN SUM(n.valor_nota * n.peso_nota) / SUM(n.peso_nota) >= 6.0 THEN 'APROVADO'
+        ELSE 'REPROVADO'
+    END AS situacao
+FROM notas n
+INNER JOIN usuarios u ON n.id_aluno = u.id_usuario
+INNER JOIN disciplinas d ON n.id_disciplina = d.id_disciplina
+WHERE n.ativo = 1 AND u.tipo_usuario = 'ESTUDANTE'
+GROUP BY n.id_aluno, n.id_disciplina;
+
+CREATE OR REPLACE VIEW `view_estatisticas_disciplina` AS
+SELECT 
+    d.id_disciplina,
+    d.nome_disciplina,
+    d.codigo_disciplina,
+    COUNT(DISTINCT n.id_aluno) AS total_alunos,
+    COUNT(n.id_nota) AS total_notas,
+    ROUND(AVG(n.valor_nota), 2) AS media_geral,
+    MIN(n.valor_nota) AS nota_minima,
+    MAX(n.valor_nota) AS nota_maxima,
+    SUM(CASE WHEN n.valor_nota >= 6.0 THEN 1 ELSE 0 END) AS notas_aprovadas,
+    SUM(CASE WHEN n.valor_nota < 6.0 THEN 1 ELSE 0 END) AS notas_reprovadas,
+    ROUND((SUM(CASE WHEN n.valor_nota >= 6.0 THEN 1 ELSE 0 END) * 100.0) / COUNT(n.id_nota), 2) AS percentual_aprovacao
+FROM disciplinas d
+LEFT JOIN notas n ON d.id_disciplina = n.id_disciplina AND n.ativo = 1
+WHERE d.ativa = 1
+GROUP BY d.id_disciplina;
+
+CREATE OR REPLACE VIEW `view_ranking_alunos` AS
+SELECT 
+    u.id_usuario,
+    u.nome_completo,
+    u.matricula_RA,
+    u.periodo_atual_aluno,
+    COUNT(n.id_nota) AS total_notas,
+    ROUND(AVG(n.valor_nota), 2) AS media_geral,
+    SUM(CASE WHEN n.valor_nota >= 6.0 THEN 1 ELSE 0 END) AS notas_aprovadas,
+    SUM(CASE WHEN n.valor_nota < 6.0 THEN 1 ELSE 0 END) AS notas_reprovadas,
+    RANK() OVER (ORDER BY AVG(n.valor_nota) DESC) AS ranking_geral
+FROM usuarios u
+LEFT JOIN notas n ON u.id_usuario = n.id_aluno AND n.ativo = 1
+WHERE u.tipo_usuario = 'ESTUDANTE' AND u.ativo = 1
+GROUP BY u.id_usuario
+HAVING COUNT(n.id_nota) > 0
+ORDER BY media_geral DESC;
+-- <<< FIM DA SEÇÃO ADICIONADA DO SCRIPT DE NOTAS >>>
+
 -- --------------------------------------------------------
 -- ETAPA 5: ÍNDICES, AUTO_INCREMENT E RESTRIÇÕES
 -- --------------------------------------------------------
@@ -170,7 +282,3 @@ ALTER TABLE `usuarios_turmas` ADD CONSTRAINT `usuarios_turmas_ibfk_1` FOREIGN KE
 -- ETAPA 6: FINALIZAÇÃO
 COMMIT;
 SET FOREIGN_KEY_CHECKS=1;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

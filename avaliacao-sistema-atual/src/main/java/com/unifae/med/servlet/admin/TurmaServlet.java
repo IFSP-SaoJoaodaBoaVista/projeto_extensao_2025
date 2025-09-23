@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/admin/turmas")
 public class TurmaServlet extends HttpServlet {
@@ -45,34 +46,60 @@ public class TurmaServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idStr = request.getParameter("idTurma");
-        String nomeTurma = request.getParameter("nomeTurma");
-        String codigoTurma = request.getParameter("codigoTurma");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        // ... (código do doPost inalterado, já está correto) ...
+        try {
+            String idStr = request.getParameter("idTurma");
+            String nomeTurma = request.getParameter("nomeTurma");
+            String codigoTurma = request.getParameter("codigoTurma");
+            String anoLetivoStr = request.getParameter("anoLetivo");
+            String semestreStr = request.getParameter("semestre");
+            boolean ativo = "on".equals(request.getParameter("ativo"));
 
-        Turma turma;
-        if (idStr != null && !idStr.isEmpty()) {
-            Integer id = Integer.parseInt(idStr);
-            turma = turmaDAO.findById(id).orElse(new Turma());
-        } else {
-            turma = new Turma();
+            Turma turma;
+            if (idStr != null && !idStr.isEmpty()) {
+                Integer id = Integer.parseInt(idStr);
+                turma = turmaDAO.findById(id).orElseThrow(() -> new ServletException("Turma não encontrada para atualização."));
+            } else {
+                turma = new Turma();
+            }
+
+            turma.setNomeTurma(nomeTurma);
+            turma.setCodigoTurma(codigoTurma);
+
+            if (anoLetivoStr != null && !anoLetivoStr.trim().isEmpty()) {
+                turma.setAnoLetivo(Integer.parseInt(anoLetivoStr));
+            }
+            if (semestreStr != null && !semestreStr.trim().isEmpty()) {
+                turma.setSemestre(Integer.parseInt(semestreStr));
+            }
+            turma.setAtivo(ativo);
+
+            turmaDAO.save(turma);
+            response.sendRedirect(request.getContextPath() + "/admin/turmas?success=1");
+        } catch (Exception e) {
+            throw new ServletException("Erro ao salvar a turma.", e);
         }
-
-        turma.setNomeTurma(nomeTurma);
-        turma.setCodigoTurma(codigoTurma);
-
-        turmaDAO.save(turma);
-        response.sendRedirect(request.getContextPath() + "/admin/turmas");
     }
 
     private void listTurmas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Turma> listTurmas = turmaDAO.findAll();
+        // Lógica de filtro adicionada para corresponder ao layout
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+
+        Map<String, Object> result = turmaDAO.findWithFiltersAndStats(search, status);
+        List<Turma> listTurmas = (List<Turma>) result.get("list");
+        Map<String, Long> stats = (Map<String, Long>) result.get("stats");
+
         request.setAttribute("listTurmas", listTurmas);
+        request.setAttribute("stats", stats);
+
         request.getRequestDispatcher("/WEB-INF/views/admin/turmas/list.jsp").forward(request, response);
     }
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("action", "new");
+        request.setAttribute("turma", new Turma());
         request.getRequestDispatcher("/WEB-INF/views/admin/turmas/form.jsp").forward(request, response);
     }
 
@@ -87,6 +114,6 @@ public class TurmaServlet extends HttpServlet {
     private void deleteTurma(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Integer id = Integer.parseInt(request.getParameter("id"));
         turmaDAO.deleteById(id);
-        response.sendRedirect(request.getContextPath() + "/admin/turmas");
+        response.sendRedirect(request.getContextPath() + "/admin/turmas?deleted=1");
     }
 }
