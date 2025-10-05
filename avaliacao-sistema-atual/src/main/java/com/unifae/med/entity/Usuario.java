@@ -99,10 +99,10 @@ public class Usuario {
      * TELEFONE
      * ========
      * Telefone de contato (opcional).
-     * Armazena apenas números, máximo 11 dígitos (padrão brasileiro).
+     * Armazena apenas números, máximo 15 dígitos (padrão brasileiro).
      */
-    @Size(max = 11, message = "Telefone deve ter no máximo 11 caracteres")
-    @Column(name = "telefone", length = 11)
+    @Size(max = 15, message = "Telefone deve ter no máximo 15 caracteres")
+    @Column(name = "telefone", length = 15)
     private String telefone;
 
     /**

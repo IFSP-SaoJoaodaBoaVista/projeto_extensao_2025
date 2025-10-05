@@ -431,22 +431,22 @@
         </div>
 
         <%--
-            NOVA SEÇÃO: MÓDULOS ACADÊMICOS
+            SEÇÃO: MÓDULOS ACADÊMICOS
             ==============================
             Seção com links para os novos módulos acadêmicos implementados.
         --%>
+        
         <div class="modules-section">
             <h3>🎓 Módulos Acadêmicos</h3>
             <p>Gerenciamento completo do ambiente acadêmico:</p>
             <div class="modules-menu">
-                <%-- Links para os novos módulos acadêmicos --%>
                 <a href="${pageContext.request.contextPath}/admin/disciplinas">📚 Gerenciar Disciplinas</a>
                 <a href="${pageContext.request.contextPath}/admin/alunos">👨‍🎓 Gerenciar Alunos</a>
                 <a href="${pageContext.request.contextPath}/admin/notas">📊 Sistema de Notas</a>
-                <a href="${pageContext.request.contextPath}/admin/turmas">📋 Gerenciar Turmas</a>
+                <a href="${pageContext.request.contextPath}/admin/turmas">📋 Gerenciar Turmas</a>                                
             </div>
         </div>
-
+        
         <%--
             SEÇÃO ADMINISTRATIVA
             ====================

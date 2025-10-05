@@ -346,6 +346,10 @@
                                         <div class="actions">
                                             <%-- Link para editar: passa a ação 'edit' e o ID da turma para o servlet. --%>
                                             <a href="turmas?action=edit&id=${turma.idTurma}" class="btn-action btn-edit" title="Editar">✏️ Editar</a>
+                                            
+                                            <%-- Link para vincular disciplinas e professores na turma escolhida. --%>
+                                            <a href="${pageContext.request.contextPath}/admin/gerenciar-disciplinas-turma?idTurma=${turma.idTurma}" class="btn-action" style="background-color: #17a2b8; color: white;" title="Disciplinas da Turma">🔗 Disciplinas</a>
+                                            
                                             <%-- Link para excluir: passa a ação 'delete' e o ID. Um script JS adiciona uma confirmação de segurança. --%>
                                             <a href="turmas?action=delete&id=${turma.idTurma}" class="btn-action btn-delete" title="Excluir">🗑️ Excluir</a>
                                         </div>

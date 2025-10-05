@@ -72,9 +72,8 @@ public class TurmaDAO extends GenericDAO<Turma, Integer> {
     }
 
     /**
-     * <<< MÉTODO RESTAURADO >>> Busca todas as turmas que estão ativas. Útil
-     * para popular formulários (como o de Notas) apenas com opções relevantes.
-     *
+     * Busca todas as turmas que estão ativas. 
+     * Útil para popular formulários (como o de Notas) apenas com opções relevantes.
      * @return Uma lista de turmas ativas.
      */
     public List<Turma> findAtivas() {

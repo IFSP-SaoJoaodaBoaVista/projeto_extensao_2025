@@ -127,28 +127,37 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     
-    <!--
-        CONFIGURAÇÃO DE SESSÃO HTTP
-        ===========================
-        Define comportamento das sessões de usuário.
-        
-        TIMEOUT DE SESSÃO:
-        - 30 minutos de inatividade
-        - Após timeout, sessão é invalidada automaticamente
-        - Usuário precisa fazer login novamente
-        
-        SEGURANÇA:
-        - Previne sessões "órfãs" consumindo memória
-        - Força reautenticação após período de inatividade
-        - Reduz risco de sequestro de sessão
-        
-        RELACIONAMENTO:
-        - Servlets: Usam HttpSession para armazenar dados
-        - JSPs: Acessam sessão via objeto implícito 'session'
-        - Autenticação: Controla tempo de login válido
+    <!-- 
+        Configuração do Jersey (implementação JAX-RS) e sessão da aplicação web:
+
+       1. <servlet>: Define um servlet chamado "Jersey REST Service", utilizando a classe 
+       ServletContainer do Jersey, que é responsável por processar as requisições REST. 
+       A configuração "jersey.config.server.provider.packages" define o pacote onde estão 
+       localizados os recursos REST (classes anotadas com @Path, @GET, @POST etc).
+
+       2. <servlet-mapping>: Mapeia o servlet definido acima para a URL "/api/*", ou seja, 
+       todas as requisições que começarem com "/api/" serão encaminhadas para o Jersey 
+       tratar.
+
+       3. <session-config>: Define a configuração de sessão da aplicação. 
+       O tempo de inatividade permitido é de 30 minutos antes que a sessão seja invalidada automaticamente.
     -->
+    <servlet>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>com.unifae.med.rest</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
     <session-config>
-        <session-timeout>30</session-timeout>  <!-- 30 minutos -->
+        <session-timeout>30</session-timeout>  
     </session-config>
     
     <!--
@@ -176,32 +185,32 @@
     
     <!-- Mapeamento para arquivos CSS -->
     <servlet-mapping>
-        <servlet-name>default</servlet-name>  <!-- Servlet padrão do Tomcat -->
-        <url-pattern>*.css</url-pattern>      <!-- Todos os arquivos .css -->
+        <servlet-name>default</servlet-name>  
+        <url-pattern>*.css</url-pattern>      
     </servlet-mapping>
     
     <!-- Mapeamento para arquivos JavaScript -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.js</url-pattern>       <!-- Todos os arquivos .js -->
+        <url-pattern>*.js</url-pattern>       
     </servlet-mapping>
     
     <!-- Mapeamento para imagens PNG -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.png</url-pattern>      <!-- Todos os arquivos .png -->
+        <url-pattern>*.png</url-pattern>      
     </servlet-mapping>
     
     <!-- Mapeamento para imagens JPG -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.jpg</url-pattern>      <!-- Todos os arquivos .jpg -->
+        <url-pattern>*.jpg</url-pattern>      
     </servlet-mapping>
     
     <!-- Mapeamento para imagens GIF -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>*.gif</url-pattern>      <!-- Todos os arquivos .gif -->
+        <url-pattern>*.gif</url-pattern>      
     </servlet-mapping>
            
     <!--

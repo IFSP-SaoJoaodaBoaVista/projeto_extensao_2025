@@ -9,7 +9,7 @@
 * base em um parâmetro de ação, servindo tanto para cadastrar um novo usuário
 * quanto para atualizar um existente.
 *
-* A página segue o padrão de arquitetura MVC (Model-View-Controller).
+* A página segue o padrão de arquitetura MVC (Model-View-Controller). 
 * ---------------------------------------------------------------------------------
 * LIGAÇÕES COM OUTROS ARQUIVOS:
 *
@@ -24,13 +24,13 @@
 * atualizar o usuário no banco de dados.
 *
 * - MODEL (Modelo de Dados):
-* Recebe dados da servlet através de atributos na requisição (request attributes).
-* - "action": Uma String que define o modo do formulário ('new' para criar, 'edit' para editar).
+* Recebe dados da servlet através de atributos na requisição (request attributes). 
+* - "action": Uma String que define o modo do formulário ('new' para criar, 'edit' para editar). 
 * - "usuario": Um objeto do tipo 'Usuario' que contém os dados de um usuário
 * existente. Este atributo só é fornecido quando action='edit'.
 * - "tiposUsuario": Uma coleção com os tipos de usuário disponíveis (ex: ALUNO, PROFESSOR)
-* para popular o campo de seleção.
-* - "listPermissoes": Uma lista de objetos 'Permissao' para popular o campo de seleção de permissões.
+* para popular o campo de seleção. 
+* - "listPermissoes": Uma lista de objetos 'Permissao' para popular o campo de seleção de permissões. 
 *
 * - RECURSOS ESTÁTICOS:
 * - Utiliza o arquivo de folha de estilos "/css/formularios.css" e contém um
@@ -56,6 +56,7 @@
             </c:choose>
             - Sistema UNIFAE
         </title>
+
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <%-- A Expression Language (EL) ${pageContext.request.contextPath} gera a URL raiz da aplicação, garantindo que o caminho para o CSS seja sempre correto. --%>
@@ -237,21 +238,27 @@
                         <c:choose>
                             <c:when test="${action == 'edit'}">✏️ Editar Usuário</c:when>
                             <c:otherwise>➕ Novo Usuário</c:otherwise>
-                        </c:choose>
-                    </h1>
+                        </c:choose> 
+                    </h1> 
                     <p>
                         <c:choose>
                             <c:when test="${action == 'edit'}">Altere os dados do usuário conforme necessário</c:when>
-                            <c:otherwise>Preencha os dados para cadastrar um novo usuário</c:otherwise>
+                            <c:otherwise>Preencha os dados para cadastrar um novo usuário</c:otherwise> 
                         </c:choose>
                     </p>
                 </div>
 
-                <form action="${pageContext.request.contextPath}/admin/usuarios" method="post">
+                <form action="${pageContext.request.contextPath}/admin/usuarios" method="post"> 
+
+                    <%-- Bloco ADICIONADO para exibir mensagens de erro retornadas pelo Servlet --%>
+                    <c:if test="${not empty error}">
+                        <div class="error-message" style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 20px;">
+                            <strong>Erro:</strong> ${error}
+                        </div>
+                    </c:if>
+
                     <%--
-                        Este campo oculto é crucial para a funcionalidade de edição.
-                        Ele é renderizado apenas se um objeto 'usuario' existir (modo de edição).
-                        Sua função é enviar o ID do usuário de volta para a servlet, para que
+                        Este campo oculto é crucial para a funcionalidade de edição. Ele é renderizado apenas se um objeto 'usuario' existir (modo de edição). Sua função é enviar o ID do usuário de volta para a servlet, para que
                         ela saiba qual registro específico deve ser atualizado no banco de dados.
                     --%>
                     <c:if test="${usuario != null}">
@@ -277,7 +284,10 @@
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="telefone">Telefone:</label>
-                                    <input type="text" id="telefone" name="telefone" value="${usuario.telefone}">
+                                    <%-- CORREÇÃO: Adicionados maxlength e placeholder para guiar o usuário --%>
+                                    <input type="text" id="telefone" name="telefone" value="${usuario.telefone}" 
+                                           maxlength="11" 
+                                           placeholder="Apenas números (Ex: 19912345678)">
                                 </div>
                             </div>
                         </div>
@@ -285,11 +295,11 @@
                         <div class="form-group">
                             <label for="senhaHash">Senha:</label>
                             <%--
-                                Este campo de senha possui lógica condicional complexa:
+                                    Este campo de senha possui lógica condicional complexa:
                                 1. 'placeholder': Se for uma edição, exibe uma mensagem instruindo o usuário a
-                                   deixar o campo em branco para não alterar a senha.
-                                2. 'required': O campo é obrigatório ('required') apenas na criação de um novo
-                                   usuário. Na edição, ele é opcional.
+                                    deixar o campo em branco para não alterar a senha. 
+ 2. 'required': O campo é obrigatório ('required') apenas na criação de um novo
+                                   usuário. Na edição, ele é opcional. 
                                 Isso representa uma regra de negócio importante implementada na view.
                             --%>
                             <input type="password" id="senhaHash" name="senhaHash" placeholder="${action == 'edit' ? 'Deixe em branco para não alterar' : ''}" ${action == 'new' ? 'required' : ''}>
@@ -314,13 +324,13 @@
                                                 corresponde ao tipo do usuário que está sendo editado. Se sim,
                                                 adiciona o atributo 'selected' para pré-selecionar a opção correta.
                                             --%>
-                                            <option value="${tipo}" ${usuario.tipoUsuario == tipo ? 'selected' : ''}>${tipo}</option>
+                                            <option value="${tipo}" ${usuario.tipoUsuario == tipo ? 'selected' : ''}>${tipo}</option> 
                                         </c:forEach>
                                     </select>
-                                </div>
+                                </div> 
                             </div>
                             <div class="form-col">
-                                <div class="form-group">
+                                <div class="form-group"> 
                                     <label for="permissaoId">Permissão:</label>
                                     <select id="permissaoId" name="permissaoId" required>
                                         <option value="">Selecione uma permissão...</option>
@@ -341,7 +351,8 @@
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="matriculaRA">Matrícula/RA:</label>
-                                    <input type="text" id="matriculaRA" name="matriculaRA" value="${usuario.matriculaRA}">
+                                    <%-- CORREÇÃO: Adicionado maxlength para limitar a entrada --%>
+                                    <input type="text" id="matriculaRA" name="matriculaRA" value="${usuario.matriculaRA}" maxlength="6">
                                 </div>
                             </div>
                             <div class="form-col">
@@ -355,13 +366,12 @@
                         <div class="form-group">
                             <label for="ativo">
                                 <%--
-                                    Lógica para marcar o checkbox 'Ativo'. A EL adiciona o atributo 'checked' se a condição for verdadeira.
-                                    A condição "${usuario.ativo or action == 'new'}" significa:
-                                    1. "usuario.ativo": Se estiver editando um usuário que já está ativo, o campo virá marcado.
-                                    2. "action == 'new'": Se for um novo cadastro, o campo também virá marcado por padrão.
+                                    Lógica para marcar o checkbox 'Ativo'. A EL adiciona o atributo 'checked' se a condição for verdadeira.  A condição "${usuario.ativo or action == 'new'}" significa:
+                                    1. "usuario.ativo": Se estiver editando um usuário que já está ativo, o campo virá marcado. 
+                                    2. "action == 'new'": Se for um novo cadastro, o campo também virá marcado por padrão. 
                                     Isso garante que novos usuários sejam ativos por padrão e que o status de usuários existentes seja preservado.
                                 --%>
-                                <input type="checkbox" id="ativo" name="ativo" ${usuario.ativo or action == 'new' ? 'checked' : ''}>
+                                <input type="checkbox" id="ativo" name="ativo" ${usuario.ativo or action == 'new' ? 'checked' : ''}> 
                                 Ativo
                             </label>
                         </div>

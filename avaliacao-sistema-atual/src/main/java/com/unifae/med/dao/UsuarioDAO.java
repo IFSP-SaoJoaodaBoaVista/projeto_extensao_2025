@@ -116,4 +116,32 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
             em.close();
         }
     }
+
+    @Override
+    public List<Usuario> findAll() {
+        EntityManager em = getEntityManager();
+        try {
+            // Usando JOIN FETCH para carregar a permissão e evitar N+1 queries na listagem
+            return em.createQuery("SELECT u FROM Usuario u LEFT JOIN FETCH u.permissao ORDER BY u.nomeCompleto", Usuario.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Retorna uma lista de todos os usuários ativos que são professores. 
+     * Essencial para o formulário de vínculo Disciplina-Turma.     *
+     * @return Lista de Usuários que são professores.
+     */
+    public List<Usuario> findProfessoresAtivos() {
+        EntityManager em = getEntityManager();
+        try {
+            String jpql = "SELECT u FROM Usuario u WHERE u.tipoUsuario = :tipo AND u.ativo = true ORDER BY u.nomeCompleto";
+            TypedQuery<Usuario> query = em.createQuery(jpql, Usuario.class);
+            query.setParameter("tipo", TipoUsuario.PROFESSOR);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }

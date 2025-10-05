@@ -1,3 +1,34 @@
+/**
+ * =================================================================================================
+ * ENTENDIMENTO DO CÓDIGO
+ * =================================================================================================
+ * Esta classe, `AvaliacaoFormServlet`, é um Controller altamente especializado dentro da
+ * arquitetura MVC, responsável por toda a lógica de renderização e processamento dos
+ * complexos formulários de avaliação. Mapeado para `/avaliacao/form`, ele atua como
+ * um orquestrador central para uma das funcionalidades mais críticas do sistema.
+ *
+ * Suas principais responsabilidades e complexidades são:
+ * 1.  **Renderização Dinâmica de Formulários:** O método `doGet`, com a ajuda de
+ * `determinarJSP`, seleciona e encaminha a requisição para um arquivo JSP
+ * específico (ex: `minicex-form.jsp`, `avaliacao360-professor-form.jsp`) com base
+ * no ID do `Questionario` escolhido pelo usuário.
+ *
+ * 2.  **Agregação de Dados para a View:** Antes de exibir um formulário, o `doGet`
+ * utiliza múltiplos DAOs para carregar todas as informações necessárias para
+ * popular os campos, como listas de alunos, professores, locais e os próprios
+ * modelos de questionário.
+ *
+ * 3.  **Processamento de Submissões Complexas:** O método `doPost` executa uma
+ * transação de múltiplos passos: salva o "cabeçalho" da avaliação, itera sobre as
+ * competências esperadas, utiliza um mapeamento (`obterMapeamentoParametros`) para
+ * ler corretamente as respostas de diferentes formulários e salva cada resposta
+ * individual no banco de dados.
+ *
+ * 4.  **Gerenciamento de Modo de Edição:** O servlet distingue entre as ações "new" e
+ * "edit", carregando previamente uma avaliação e suas respostas existentes quando
+ * o usuário está editando um registro.
+ * =================================================================================================
+ */
 package com.unifae.med.servlet;
 
 import com.unifae.med.dao.*;
@@ -18,6 +49,7 @@ import java.util.Map;
 @WebServlet("/avaliacao/form")
 public class AvaliacaoFormServlet extends HttpServlet {
 
+    // Conjunto completo de DAOs para orquestrar a criação/edição de avaliações.
     private AvaliacaoPreenchidaDAO avaliacaoDAO;
     private QuestionarioDAO questionarioDAO;
     private UsuarioDAO usuarioDAO;
@@ -36,6 +68,10 @@ public class AvaliacaoFormServlet extends HttpServlet {
         this.localEventoDAO = new LocalEventoDAO();
     }
 
+    /**
+     * Trata requisições GET para exibir o formulário de avaliação, seja para
+     * uma nova avaliação ou para editar uma existente.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,49 +81,35 @@ public class AvaliacaoFormServlet extends HttpServlet {
         String avaliacaoIdStr = request.getParameter("id");
 
         try {
-            // Carregar dados básicos
-            List<Usuario> alunos = usuarioDAO.findByTipoUsuario(TipoUsuario.ESTUDANTE);
-            List<Usuario> professores = usuarioDAO.findByTipoUsuario(TipoUsuario.PROFESSOR);
-            List<LocalEvento> locaisEventos = localEventoDAO.findAll();
-            List<Questionario> questionarios = questionarioDAO.findAll();
-
-            request.setAttribute("alunos", alunos);
-            request.setAttribute("professores", professores);
-            request.setAttribute("locaisEventos", locaisEventos);
-            request.setAttribute("questionarios", questionarios);
+            // 1. Carrega dados comuns para preencher selects (dropdowns) no formulário.
+            prepareFormData(request);
             request.setAttribute("action", action);
 
-            // Se for edição, carregar dados da avaliação PRIMEIRO
+            // 2. Se for uma edição, carrega os dados da avaliação e suas respostas.
             if ("edit".equals(action) && avaliacaoIdStr != null) {
                 Integer avaliacaoId = Integer.parseInt(avaliacaoIdStr);
                 AvaliacaoPreenchida avaliacao = avaliacaoDAO.findById(avaliacaoId)
                         .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
 
-                // Se questionarioId não foi fornecido, usar o da avaliação IMEDIATAMENTE
-                if (questionarioIdStr == null) {
-                    questionarioIdStr = avaliacao.getQuestionario().getIdQuestionario().toString();
-                }
+                // O ID do questionário é determinado pela avaliação que está sendo editada.
+                questionarioIdStr = avaliacao.getQuestionario().getIdQuestionario().toString();
 
-                // Carregar respostas com eager loading garantido
                 List<RespostaItemAvaliacao> respostas = respostaDAO.findByAvaliacaoPreenchida(avaliacao);
 
-                // Definir atributos com dados completos
                 request.setAttribute("avaliacao", avaliacao);
                 request.setAttribute("respostas", respostas);
-                request.setAttribute("questionarioIdSelecionado", avaliacao.getQuestionario().getIdQuestionario());
             }
 
-            // Carregar questionário se fornecido
+            // 3. Carrega o modelo de questionário selecionado.
             if (questionarioIdStr != null) {
                 Integer questionarioId = Integer.parseInt(questionarioIdStr);
                 request.setAttribute("questionarioIdSelecionado", questionarioId);
-
                 Questionario questionario = questionarioDAO.findById(questionarioId)
                         .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
                 request.setAttribute("questionario", questionario);
             }
 
-            // Redirecionar para o formulário apropriado baseado no questionário
+            // 4. Determina qual arquivo JSP deve ser renderizado e encaminha a requisição.
             String jspPath = determinarJSP(questionarioIdStr);
             request.getRequestDispatcher(jspPath).forward(request, response);
 
@@ -98,16 +120,18 @@ public class AvaliacaoFormServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Trata requisições POST, processando a submissão de um formulário de
+     * avaliação preenchido.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String action = request.getParameter("action");
-        String questionarioIdStr = request.getParameter("questionarioId");
-        String avaliacaoIdStr = request.getParameter("avaliacaoId");
-
         try {
-            // Dados básicos da avaliação
+            // 1. Coleta e processa os dados do cabeçalho da avaliação.
+            String action = request.getParameter("action");
+            String questionarioIdStr = request.getParameter("questionarioId");
+            String avaliacaoIdStr = request.getParameter("avaliacaoId");
             String alunoAvaliadoIdStr = request.getParameter("alunoAvaliadoId");
             String avaliadorIdStr = request.getParameter("avaliadorId");
             String tipoAvaliadorNaoUsuario = request.getParameter("tipoAvaliadorNaoUsuario");
@@ -120,89 +144,88 @@ public class AvaliacaoFormServlet extends HttpServlet {
             String feedbackMelhoria = request.getParameter("feedbackMelhoria");
             String contratoAprendizagem = request.getParameter("contratoAprendizagem");
 
-            // Buscar entidades
-            Integer questionarioId = Integer.parseInt(questionarioIdStr);
-            Questionario questionario = questionarioDAO.findById(questionarioId)
+            // 2. Busca as entidades "pai" necessárias.
+            Questionario questionario = questionarioDAO.findById(Integer.parseInt(questionarioIdStr))
                     .orElseThrow(() -> new RuntimeException("Questionário não encontrado"));
-
-            Integer alunoAvaliadoId = Integer.parseInt(alunoAvaliadoIdStr);
-            Usuario alunoAvaliado = usuarioDAO.findById(alunoAvaliadoId)
+            Usuario alunoAvaliado = usuarioDAO.findById(Integer.parseInt(alunoAvaliadoIdStr))
                     .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-
             Usuario avaliador = null;
-            // CONDIÇÃO CORRIGIDA PARA EVITAR ERRO COM STRING VAZIA
             if (avaliadorIdStr != null && !avaliadorIdStr.isEmpty() && !avaliadorIdStr.equals("0")) {
-                Integer avaliadorId = Integer.parseInt(avaliadorIdStr);
-                avaliador = usuarioDAO.findById(avaliadorId).orElse(null);
+                avaliador = usuarioDAO.findById(Integer.parseInt(avaliadorIdStr)).orElse(null);
             }
 
-            // Criar ou buscar avaliação
-            AvaliacaoPreenchida avaliacao;
-            if ("edit".equals(action) && avaliacaoIdStr != null) {
-                Integer avaliacaoId = Integer.parseInt(avaliacaoIdStr);
-                avaliacao = avaliacaoDAO.findById(avaliacaoId)
-                        .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
-            } else {
-                avaliacao = new AvaliacaoPreenchida();
-            }
+            // 3. Cria uma nova avaliação ou busca a existente para edição.
+            AvaliacaoPreenchida avaliacao = ("edit".equals(action))
+                    ? avaliacaoDAO.findById(Integer.parseInt(avaliacaoIdStr)).orElseThrow(() -> new RuntimeException("Avaliação não encontrada"))
+                    : new AvaliacaoPreenchida();
 
-            // Definir dados da avaliação
+            // 4. Popula a entidade AvaliacaoPreenchida.
             avaliacao.setQuestionario(questionario);
             avaliacao.setAlunoAvaliado(alunoAvaliado);
             avaliacao.setAvaliador(avaliador);
             avaliacao.setTipoAvaliadorNaoUsuario(tipoAvaliadorNaoUsuario);
             avaliacao.setNomeAvaliadorNaoUsuario(nomeAvaliadorNaoUsuario);
             avaliacao.setDataRealizacao(LocalDate.parse(dataRealizacaoStr));
-
             if (horarioInicioStr != null && !horarioInicioStr.isEmpty()) {
                 avaliacao.setHorarioInicio(LocalTime.parse(horarioInicioStr));
             }
             if (horarioFimStr != null && !horarioFimStr.isEmpty()) {
                 avaliacao.setHorarioFim(LocalTime.parse(horarioFimStr));
             }
-
             avaliacao.setLocalRealizacao(localRealizacao);
             avaliacao.setFeedbackPositivo(feedbackPositivo);
             avaliacao.setFeedbackMelhoria(feedbackMelhoria);
             avaliacao.setContratoAprendizagem(contratoAprendizagem);
 
-            // Salvar avaliação
+            // 5. Salva a avaliação (cabeçalho) para obter um ID.
             avaliacao = avaliacaoDAO.save(avaliacao);
 
-            // Se for edição, remover respostas antigas
+            // 6. Se for uma edição, limpa as respostas antigas antes de inserir as novas.
             if ("edit".equals(action)) {
                 respostaDAO.deleteByAvaliacaoPreenchida(avaliacao);
             }
 
-            // Processar respostas das competências com mapeamento correto
+            // 7. Processa e salva cada resposta individual do formulário.
             processarRespostasCompetencias(request, avaliacao, questionario);
 
-            // Redirecionar para a lista de avaliações
+            // 8. Redireciona para a página de listagem com mensagem de sucesso.
             response.sendRedirect(request.getContextPath() + "/avaliacoes?success=true");
 
         } catch (Exception e) {
             e.printStackTrace();
+            // **CORREÇÃO APLICADA AQUI**
+            // Em vez de chamar doGet, encaminha de volta ao JSP do formulário com a mensagem de erro.
             request.setAttribute("erro", "Erro ao salvar avaliação: " + e.getMessage());
-            doGet(request, response);
+
+            // Prepara novamente os dados para o formulário ser recarregado corretamente.
+            prepareFormData(request);
+
+            // Determina qual JSP usar e encaminha
+            String questionarioIdStr = request.getParameter("questionarioId");
+            String jspPath = determinarJSP(questionarioIdStr);
+            request.getRequestDispatcher(jspPath).forward(request, response);
         }
     }
 
     /**
-     * Processa as respostas das competências com mapeamento correto dos nomes
-     * dos parâmetros
+     * Método utilitário que carrega as listas de dados (locais, disciplinas,
+     * etc.) necessárias para popular os campos <select> (dropdowns) nos
+     * formulários.
      */
-    private void processarRespostasCompetencias(HttpServletRequest request,
-            AvaliacaoPreenchida avaliacao,
-            Questionario questionario) {
+    private void prepareFormData(HttpServletRequest request) {
+        request.setAttribute("alunos", usuarioDAO.findByTipoUsuario(TipoUsuario.ESTUDANTE));
+        request.setAttribute("professores", usuarioDAO.findByTipoUsuario(TipoUsuario.PROFESSOR));
+        request.setAttribute("locaisEventos", localEventoDAO.findAll());
+        request.setAttribute("questionarios", questionarioDAO.findAll());
+    }
 
-        // Buscar APENAS competências deste questionário específico
-        List<CompetenciaQuestionario> competencias
-                = competenciaDAO.findByQuestionario(questionario.getIdQuestionario());
-
-        // Obter mapeamento de nomes de parâmetros para este questionário
+    /**
+     * Processa e salva as respostas para cada competência de um questionário.
+     */
+    private void processarRespostasCompetencias(HttpServletRequest request, AvaliacaoPreenchida avaliacao, Questionario questionario) {
+        List<CompetenciaQuestionario> competencias = competenciaDAO.findByQuestionario(questionario.getIdQuestionario());
         Map<String, String> mapeamentoParametros = obterMapeamentoParametros(questionario);
 
-        // Salvar respostas
         for (CompetenciaQuestionario competencia : competencias) {
             String nomeCompetencia = competencia.getNomeCompetencia().toLowerCase().trim();
             String nomeParametro = mapeamentoParametros.get(nomeCompetencia);
@@ -223,19 +246,14 @@ public class AvaliacaoFormServlet extends HttpServlet {
                         resposta.setRespostaValorNumerico(new BigDecimal(respostaValorStr));
                     }
                 }
-
                 respostaDAO.save(resposta);
             }
         }
     }
 
     /**
-     * Retorna o mapeamento de nomes de competências para nomes de parâmetros
-     * baseado no tipo de questionário
-     */
-    /**
-     * Retorna o mapeamento de nomes de competências para nomes de parâmetros
-     * baseado no tipo de questionário
+     * Retorna um mapa que "traduz" o nome de uma competência (do banco) para o
+     * nome do campo de input correspondente no HTML de cada formulário JSP.
      */
     private Map<String, String> obterMapeamentoParametros(Questionario questionario) {
         Map<String, String> mapeamento = new HashMap<>();
@@ -266,7 +284,7 @@ public class AvaliacaoFormServlet extends HttpServlet {
             mapeamento.put("comunicação e interação respeitosa com a equipe", "resposta_interacao_equipe");
 
         } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("equipe")) {
-            // Mapeamento CORRIGIDO e específico para 360° Equipe
+            // Mapeamento específico para 360° Equipe
             mapeamento.put("colaboração em equipe", "resposta_colaboracao_equipe");
             mapeamento.put("comunicação interprofissional", "resposta_comunicacao_interprofissional");
             mapeamento.put("respeito mútuo", "resposta_respeito_mutuo");
@@ -296,7 +314,8 @@ public class AvaliacaoFormServlet extends HttpServlet {
     }
 
     /**
-     * Determina qual JSP usar baseado no questionário
+     * Determina qual arquivo JSP deve ser usado para renderizar o formulário,
+     * com base no nome do questionário selecionado.
      */
     private String determinarJSP(String questionarioIdStr) {
         if (questionarioIdStr == null) {
@@ -305,29 +324,28 @@ public class AvaliacaoFormServlet extends HttpServlet {
         }
 
         try {
-            Integer questionarioId = Integer.parseInt(questionarioIdStr);
-            Questionario questionario = questionarioDAO.findById(questionarioId).orElse(null);
-
+            Questionario questionario = questionarioDAO.findById(Integer.parseInt(questionarioIdStr)).orElse(null);
             if (questionario != null) {
                 String nomeQuestionario = questionario.getNomeModelo().toLowerCase();
 
                 if (nomeQuestionario.contains("mini cex")) {
                     return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
-                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor")) {
+                }
+                if (nomeQuestionario.contains("360") && nomeQuestionario.contains("professor")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-professor-form.jsp";
-                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("pares")) {
+                }
+                if (nomeQuestionario.contains("360") && nomeQuestionario.contains("pares")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-pares-form.jsp";
-                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("equipe")) { // <-- NOVA CONDIÇÃO
+                }
+                if (nomeQuestionario.contains("360") && nomeQuestionario.contains("equipe")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-equipe-form.jsp";
-                } else if (nomeQuestionario.contains("360") && nomeQuestionario.contains("paciente")) { // <-- NOVA CONDIÇÃO
+                }
+                if (nomeQuestionario.contains("360") && nomeQuestionario.contains("paciente")) {
                     return "/WEB-INF/views/avaliacoes/avaliacao360-paciente-form.jsp";
                 }
             }
         } catch (NumberFormatException e) {
-            // Ignorar erro e usar JSP padrão
-        }
-
-        // Fallback para o primeiro formulário se não conseguir determinar
-        return "/WEB-INF/views/avaliacoes/minicex-form.jsp";
+            /* Ignora */ }
+        return "/WEB-INF/views/avaliacoes/minicex-form.jsp"; // Fallback
     }
 }

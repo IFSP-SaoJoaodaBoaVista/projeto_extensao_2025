@@ -15,6 +15,7 @@ public class DisciplinaDAO extends GenericDAO<Disciplina, Integer> {
 
     /**
      * Busca uma disciplina pelo seu nome exato.
+     *
      * @param nomeDisciplina O nome da disciplina.
      * @return Um Optional contendo a disciplina se encontrada.
      */
@@ -34,6 +35,7 @@ public class DisciplinaDAO extends GenericDAO<Disciplina, Integer> {
 
     /**
      * Busca uma disciplina pela sua sigla exata.
+     *
      * @param sigla A sigla da disciplina.
      * @return Um Optional contendo a disciplina se encontrada.
      */
@@ -53,6 +55,7 @@ public class DisciplinaDAO extends GenericDAO<Disciplina, Integer> {
 
     /**
      * Busca todas as disciplinas que estão ativas.
+     *
      * @return Uma lista de disciplinas ativas.
      */
     public List<Disciplina> findAtivas() {
@@ -65,4 +68,15 @@ public class DisciplinaDAO extends GenericDAO<Disciplina, Integer> {
             em.close();
         }
     }
+
+    @Override
+    public List<Disciplina> findAll() {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT d FROM Disciplina d ORDER BY d.nomeDisciplina", Disciplina.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
 }
