@@ -302,6 +302,11 @@
                                         <div class="actions">
                                             <%-- Link para editar: passa a ação 'edit' e o ID do questionário para o servlet. --%>
                                             <a href="questionarios?action=edit&id=${questionario.idQuestionario}" class="btn-action btn-edit" title="Editar">✏️ Editar</a>
+                                            
+                                            <%-- Link para cadastrar competências --%>
+                                            <a href="${pageContext.request.contextPath}/admin/competencias?questionarioId=${questionario.idQuestionario}" class="btn-action" style="background-color: #17a2b8; color: white;" title="Gerenciar Competências">🛠️ Competências</a>
+
+                                            
                                             <%-- Link para excluir: passa a ação 'delete' e o ID. Um script JS adiciona uma confirmação de segurança. --%>
                                             <a href="questionarios?action=delete&id=${questionario.idQuestionario}" class="btn-action btn-delete" title="Excluir">🗑️ Excluir</a>
                                         </div>

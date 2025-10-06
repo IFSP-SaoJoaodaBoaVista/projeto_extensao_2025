@@ -27,6 +27,7 @@ com\unifae\med\dao\PermissaoDAO.class
 com\unifae\med\entity\EventoAgenda.class
 com\unifae\med\servlet\admin\NotaServlet.class
 com\unifae\med\entity\Questionario.class
+com\unifae\med\entity\CompetenciaQuestionario$TipoItem.class
 com\unifae\med\rest\CompetenciaQuestionarioResource.class
 com\unifae\med\entity\TipoEvento.class
 com\unifae\med\entity\Disciplina.class
@@ -43,6 +44,7 @@ com\unifae\med\servlet\AvaliacaoDeleteServlet.class
 com\unifae\med\rest\TurmaResource.class
 com\unifae\med\servlet\admin\QuestionarioServlet.class
 com\unifae\med\servlet\AgendaServlet.class
+com\unifae\med\servlet\admin\CompetenciaQuestionarioServlet.class
 com\unifae\med\dao\RespostaItemAvaliacaoDAO.class
 com\unifae\med\rest\dto\PermissaoDTO.class
 com\unifae\med\dao\AvaliacaoPreenchidaDAO.class
